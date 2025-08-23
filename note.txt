@@ -1,0 +1,47 @@
+Master Data
+-----------
+tipe transaksi
+    - id
+    - nama
+
+kategori transaksi
+    - id
+    - transaksi_id
+    - nama
+
+user
+    - id
+    - name
+    - role
+    - username
+    - password
+
+rekening kas
+    - id
+    - nama (Kas Umum, Bank BSI, BRI, Tabungan Santri)
+
+tahun ajaran
+    - id
+    - ta
+
+
+input transaksi
+    - id
+    - tipe_transaksi_id
+    - kategori_transaksi_id
+    - nominal
+    - tanggal
+    - catatan
+    - lampiran (optional)
+
+
+anggaran
+    - id
+    - tahun
+    - semester
+
+laporan
+    filter : 
+        - tab pengeluaran dan pemasukan
+        - laporan harian, bulanan, tahunan dan range waktu
+        - filter kategori transaksi
