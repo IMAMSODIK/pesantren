@@ -2,25 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TipeTransaksi;
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\StoreTipeTransaksiRequest;
+use App\Http\Requests\UpdateTipeTransaksiRequest;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class UserController extends Controller
+class TipeTransaksiController extends Controller
 {
     public function index()
     {
         $data = [
-            'pageTitle' => 'User Management - ' . env('APP_NAME', 'Manajemen Keuangan'),
+            'pageTitle' => 'Tipe Transaksi - ' . env('APP_NAME', 'Manajemen Keuangan'),
         ];
 
         try {
-            $data['users'] = \App\Models\User::all();
+            $data['types'] = TipeTransaksi::where('status', 'active')->get();
 
-            return view('user.index', $data);
+            return view('tipe.index', $data);
         } catch (QueryException $e) {
             return response()->view('errors.500', [
                 'error' => 'Kesalahan database: ' . $e->getMessage()
@@ -36,15 +38,13 @@ class UserController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name'  => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email',
+                'nama'  => 'required|string|max:255|unique:tipe_transaksis,name',
             ], [
                 'required' => 'Kolom :attribute wajib diisi.',
                 'string'   => 'Kolom :attribute harus berupa teks.',
                 'max'      => [
                     'string' => 'Kolom :attribute tidak boleh lebih dari :max karakter.',
                 ],
-                'email'    => 'Kolom :attribute harus berupa alamat email yang valid.',
                 'unique'   => 'Kolom :attribute sudah digunakan.',
             ]);
 
@@ -57,10 +57,8 @@ class UserController extends Controller
                 ]);
             }
 
-            User::create([
-                'name'     => $request->name,
-                'email'    => $request->email,
-                'password' => bcrypt($request->email),
+            TipeTransaksi::create([
+                'name'     => $request->nama,
             ]);
 
             return response()->json([
@@ -98,11 +96,11 @@ class UserController extends Controller
                 ]);
             }
 
-            $user = User::where('id', $request->id)->first();
-            if ($user) {
+            $tipeTransaksi = TipeTransaksi::where('id', $request->id)->first();
+            if ($tipeTransaksi) {
                 return response()->json([
                     'status'  => true,
-                    'data' => $user
+                    'data' => $tipeTransaksi
                 ]);
             }
 
@@ -127,16 +125,14 @@ class UserController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id'    => 'required|exists:users,id',
-                'name'  => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $request->id . ',id',
+                'id'    => 'required|exists:tipe_transaksis,id',
+                'name'  => 'required|string|max:255|unique:tipe_transaksis,name,' . $request->id . ',id',
             ], [
                 'required' => 'Kolom :attribute wajib diisi.',
                 'string'   => 'Kolom :attribute harus berupa teks.',
                 'max'      => [
                     'string' => 'Kolom :attribute tidak boleh lebih dari :max karakter.',
                 ],
-                'email'    => 'Kolom :attribute harus berupa alamat email yang valid.',
                 'unique'   => 'Kolom :attribute sudah digunakan.',
                 'exists'   => 'Data dengan :attribute tidak ditemukan.',
             ]);
@@ -150,23 +146,22 @@ class UserController extends Controller
                 ], 422);
             }
 
-            $user = User::find($request->id);
+            $tipeTransaksi = TipeTransaksi::find($request->id);
 
-            if (!$user) {
+            if (!$tipeTransaksi) {
                 return response()->json([
                     'status'  => false,
                     'message' => 'User tidak ditemukan.',
                 ], 404);
             }
 
-            $user->name  = $request->name;
-            $user->email = $request->email;
-            $user->save();
+            $tipeTransaksi->name  = $request->name;
+            $tipeTransaksi->save();
 
             return response()->json([
                 'status'  => true,
                 'message' => 'Data pengguna berhasil diperbarui.',
-                'data'    => $user
+                'data'    => $tipeTransaksi
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
             return response()->json([
@@ -200,14 +195,14 @@ class UserController extends Controller
                 ]);
             }
 
-            $user = User::where('id', $request->id)->first();
-            if ($user) {
-                $user->status = 'inactive';
-                $user->save();
-
+            $tipeTransaksi = TipeTransaksi::where('id', $request->id)->first();
+            if ($tipeTransaksi) {
+                $tipeTransaksi->status = 'inactive';
+                $tipeTransaksi->save();
+                
                 return response()->json([
                     'status'  => true,
-                    'data' => $user
+                    'data' => $tipeTransaksi
                 ]);
             }
 

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\TipeTransaksi;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -32,6 +33,11 @@ class DatabaseSeeder extends Seeder
             'email'    => 'op2@gmail.com',
             'password' => bcrypt('123'),
             'role'     => 'operator'
+        ]);
+
+        $this->call([
+            KategoriTransaksiSeeder::class,
+            RekeningKasSeeder::class
         ]);
     }
 }

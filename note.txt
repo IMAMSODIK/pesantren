@@ -20,10 +20,6 @@ rekening kas
     - id
     - nama (Kas Umum, Bank BSI, BRI, Tabungan Santri)
 
-tahun ajaran
-    - id
-    - ta
-
 
 input transaksi
     - id
@@ -45,3 +41,14 @@ laporan
         - tab pengeluaran dan pemasukan
         - laporan harian, bulanan, tahunan dan range waktu
         - filter kategori transaksi
+
+
+
+
+
+
+
+
+
+
+

@@ -2,25 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RekeningKas;
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\StoreRekeningKasRequest;
+use App\Http\Requests\UpdateRekeningKasRequest;
+use App\Models\TipeTransaksi;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class UserController extends Controller
+class RekeningKasController extends Controller
 {
     public function index()
     {
         $data = [
-            'pageTitle' => 'User Management - ' . env('APP_NAME', 'Manajemen Keuangan'),
+            'pageTitle' => 'Rekening Kas - ' . env('APP_NAME', 'Manajemen Keuangan'),
         ];
 
         try {
-            $data['users'] = \App\Models\User::all();
+            $data['reks'] = RekeningKas::where('status', 'active')->get();
 
-            return view('user.index', $data);
+            return view('rekening.index', $data);
         } catch (QueryException $e) {
             return response()->view('errors.500', [
                 'error' => 'Kesalahan database: ' . $e->getMessage()
@@ -36,15 +39,13 @@ class UserController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name'  => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email',
+                'nama'  => 'required|string|max:255|unique:rekening_kas,name',
             ], [
                 'required' => 'Kolom :attribute wajib diisi.',
                 'string'   => 'Kolom :attribute harus berupa teks.',
                 'max'      => [
                     'string' => 'Kolom :attribute tidak boleh lebih dari :max karakter.',
                 ],
-                'email'    => 'Kolom :attribute harus berupa alamat email yang valid.',
                 'unique'   => 'Kolom :attribute sudah digunakan.',
             ]);
 
@@ -57,10 +58,8 @@ class UserController extends Controller
                 ]);
             }
 
-            User::create([
-                'name'     => $request->name,
-                'email'    => $request->email,
-                'password' => bcrypt($request->email),
+            RekeningKas::create([
+                'name'     => $request->nama,
             ]);
 
             return response()->json([
@@ -84,9 +83,10 @@ class UserController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id'  => 'required',
+                'id'    => 'required|exists:rekening_kas,id',
             ], [
-                'required' => 'Kolom :attribute wajib diisi.'
+                'required' => 'Kolom :attribute wajib diisi.',
+                'exists'   => 'Data dengan :attribute tidak ditemukan.',
             ]);
 
             if ($validator->fails()) {
@@ -98,11 +98,11 @@ class UserController extends Controller
                 ]);
             }
 
-            $user = User::where('id', $request->id)->first();
-            if ($user) {
+            $rekeningKas = RekeningKas::where('id', $request->id)->first();
+            if ($rekeningKas) {
                 return response()->json([
                     'status'  => true,
-                    'data' => $user
+                    'data' => $rekeningKas
                 ]);
             }
 
@@ -127,16 +127,14 @@ class UserController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id'    => 'required|exists:users,id',
-                'name'  => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $request->id . ',id',
+                'id'    => 'required|exists:rekening_kas,id',
+                'name'  => 'required|string|max:255|unique:rekening_kas,name,' . $request->id . ',id',
             ], [
                 'required' => 'Kolom :attribute wajib diisi.',
                 'string'   => 'Kolom :attribute harus berupa teks.',
                 'max'      => [
                     'string' => 'Kolom :attribute tidak boleh lebih dari :max karakter.',
                 ],
-                'email'    => 'Kolom :attribute harus berupa alamat email yang valid.',
                 'unique'   => 'Kolom :attribute sudah digunakan.',
                 'exists'   => 'Data dengan :attribute tidak ditemukan.',
             ]);
@@ -150,23 +148,22 @@ class UserController extends Controller
                 ], 422);
             }
 
-            $user = User::find($request->id);
+            $rekeningKas = RekeningKas::find($request->id);
 
-            if (!$user) {
+            if (!$rekeningKas) {
                 return response()->json([
                     'status'  => false,
                     'message' => 'User tidak ditemukan.',
                 ], 404);
             }
 
-            $user->name  = $request->name;
-            $user->email = $request->email;
-            $user->save();
+            $rekeningKas->name  = $request->name;
+            $rekeningKas->save();
 
             return response()->json([
                 'status'  => true,
                 'message' => 'Data pengguna berhasil diperbarui.',
-                'data'    => $user
+                'data'    => $rekeningKas
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
             return response()->json([
@@ -185,7 +182,7 @@ class UserController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id'    => 'required|exists:tipe_transaksis,id',
+                'id'    => 'required|exists:rekening_kas,id',
             ], [
                 'required' => 'Kolom :attribute wajib diisi.',
                 'exists'   => 'Data dengan :attribute tidak ditemukan.',
@@ -200,14 +197,14 @@ class UserController extends Controller
                 ]);
             }
 
-            $user = User::where('id', $request->id)->first();
-            if ($user) {
-                $user->status = 'inactive';
-                $user->save();
-
+            $rekeningKas = RekeningKas::where('id', $request->id)->first();
+            if ($rekeningKas) {
+                $rekeningKas->status = 'inactive';
+                $rekeningKas->save();
+                
                 return response()->json([
                     'status'  => true,
-                    'data' => $user
+                    'data' => $rekeningKas
                 ]);
             }
 
