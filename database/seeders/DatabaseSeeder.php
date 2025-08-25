@@ -37,7 +37,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             KategoriTransaksiSeeder::class,
-            RekeningKasSeeder::class
+            RekeningKasSeeder::class,
+            TahunAjaranSeeder::class
         ]);
     }
 }

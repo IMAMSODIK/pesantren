@@ -43,12 +43,12 @@
                                         <table id="tabelKaryawan" class="table table-striped table-bordered align-middle">
                                             <thead class="table">
                                                 <tr>
-                                                    <th>ID</th>
-                                                    <th>Nama</th>
-                                                    <th>Email</th>
-                                                    <th>Role</th>
-                                                    <th>Status</th>
-                                                    <th>Aksi</th>
+                                                    <th class="text-center">ID</th>
+                                                    <th class="text-center">Nama</th>
+                                                    <th class="text-center">Email</th>
+                                                    <th class="text-center">Role</th>
+                                                    <th class="text-center">Status</th>
+                                                    <th class="text-center">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

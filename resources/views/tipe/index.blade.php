@@ -43,10 +43,10 @@
                                         <table id="tabelKaryawan" class="table table-striped table-bordered align-middle">
                                             <thead class="table">
                                                 <tr>
-                                                    <th>ID</th>
-                                                    <th>Tipe Transaksi</th>
-                                                    {{-- <th>Status</th> --}}
-                                                    <th>Aksi</th>
+                                                    <th class="text-center">ID</th>
+                                                    <th class="text-center">Tipe Transaksi</th>
+                                                    {{-- <th class="text-center">Status</th> --}}
+                                                    <th class="text-center">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

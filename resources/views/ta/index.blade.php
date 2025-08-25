@@ -12,15 +12,15 @@
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Kategori Transaksi</li>
+                                    <li class="breadcrumb-item active" aria-current="page">Tahun Ajaran</li>
                                 </ol>
                             </nav>
-                            <h3 class="m-0">Kategori Transaksi</h3>
+                            <h3 class="m-0">Tahun Ajaran</h3>
                         </div>
                         <div class="ml-auto">
                             <button class="btn btn-info" data-toggle="modal" data-target="#modal-large" type="button"
                                 id="add-data">
-                                + Tambah Kategori Transaksi
+                                + Tambah Tahun Ajaran
                             </button>
                         </div>
                     </div>
@@ -44,8 +44,7 @@
                                             <thead class="table">
                                                 <tr>
                                                     <th class="text-center">ID</th>
-                                                    <th class="text-center">Tipe Transaksi</th>
-                                                    <th class="text-center">Kategori Transaksi</th>
+                                                    <th class="text-center">Tahun Ajaran</th>
                                                     <th class="text-center">Aksi</th>
                                                 </tr>
                                             </thead>
@@ -53,28 +52,19 @@
                                                 @php
                                                     $no = 1;
                                                 @endphp
-                                                @foreach ($kategories as $kat)
+                                                @foreach ($tas as $ta)
                                                     <tr>
                                                         <td class="text-center">{{ $no++ }}</td>
-                                                        <td class="text-center">
-                                                            @if ($kat->tipeTransaksi->name == 'Pengeluaran')
-                                                                <span class="text-white badge bg-danger">Pengeluaran</span>
-                                                            @elseif ($kat->tipeTransaksi->name == 'Pemasukan')
-                                                                <span class="text-white badge bg-success">Pemasukan</span>
-                                                            @else
-                                                                <span class="text-white badge bg-secondary">{{$kat->tipeTransaksi->name }}</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>{{ $kat->name }}</td>
+                                                        <td class="text-center">Tahun Ajaran {{ $ta->ta }}</td>
                                                         <td>
                                                             <div class="d-flex flex-wrap gap-2">
                                                                 <button class="btn btn-sm btn-warning text-white edit"
-                                                                    style="margin-right: 5px" data-id="{{ $kat->id }}">
+                                                                    style="margin-right: 5px" data-id="{{ $ta->id }}">
                                                                     <i class="fa fa-pencil" aria-hidden="true"></i>
                                                                 </button>
                                                                 <button class="btn btn-sm btn-danger text-white delete"
                                                                     data-toggle="modal" data-target="#modal-warning"
-                                                                    data-id="{{ $kat->id }}">
+                                                                    data-id="{{ $ta->id }}">
                                                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                                                 </button>
                                                             </div>
@@ -126,20 +116,10 @@
                 </div>
                 <div class="modal-body">
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="tipe">Tipe Transaski</label>
-                        <select class="form-control" id="tipe" required>
-                            @foreach ($types as $type)
-                                <option value="{{$type->id}}">{{$type->name}}</option>
-                            @endforeach
-                        </select>
-                        <div class="invalid-feedback">Pilih Tipe Transaski.</div>
-                        <div class="valid-feedback"></div>
-                    </div>
-                    <div class="col-12 col-md-12 mb-3">
-                        <label for="kategori">Kategori Transaski</label>
-                        <input type="text" class="form-control" id="kategori" placeholder="Masukkan Kategori Transaski"
+                        <label for="ta">Tipe Transaski</label>
+                        <input type="text" class="form-control" id="ta" placeholder="Masukkan Tahun Ajaran"
                             required="">
-                        <div class="invalid-feedback">Masukkan Kategori Transaski yang valid.</div>
+                        <div class="invalid-feedback">Masukkan Tahun Ajaran yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
                 </div>
@@ -164,20 +144,10 @@
                 <div class="modal-body">
                     <input type="hidden" name="" id="id">
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="edit_tipe">Tipe Transaski</label>
-                        <select class="form-control" id="edit_tipe" required>
-                            @foreach ($types as $type)
-                                <option value="{{$type->id}}">{{$type->name}}</option>
-                            @endforeach
-                        </select>
-                        <div class="invalid-feedback">Pilih Tipe Transaski.</div>
-                        <div class="valid-feedback"></div>
-                    </div>
-                    <div class="col-12 col-md-12 mb-3">
-                        <label for="edit_kategori">Kategori Transaski</label>
-                        <input type="text" class="form-control" id="edit_kategori" placeholder="Masukkan Kategori Transaski"
+                        <label for="edit_ta">Tahun Ajaran</label>
+                        <input type="text" class="form-control" id="edit_ta" placeholder="Masukkan Tahun Ajaran"
                             required="">
-                        <div class="invalid-feedback">Masukkan Kategori Transaski yang valid.</div>
+                        <div class="invalid-feedback">Masukkan Tahun Ajaran yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
                 </div>
@@ -217,11 +187,10 @@
             buttonDisabled(button);
 
             $.ajax({
-                url: "/kategori-transaksi/store",
+                url: "/tahun-ajaran/store",
                 type: "POST",
                 data: {
-                    tipe: $("#tipe").val(),
-                    kategori: $("#kategori").val(),
+                    ta: $("#ta").val(),
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
@@ -249,7 +218,7 @@
             buttonDisabled(button);
 
             $.ajax({
-                url: "/kategori-transaksi/edit",
+                url: "/tahun-ajaran/edit",
                 type: "GET",
                 data: {
                     id: $(this).data('id')
@@ -257,8 +226,7 @@
                 success: function(response) {
                     buttonEnabled(button);
                     if (response.status) {
-                        $("#edit_tipe").val(response.data.tipe_transaksi_id);
-                        $("#edit_kategori").val(response.data.name);
+                        $("#edit_ta").val(response.data.ta);
                         $("#id").val(response.data.id);
                         openModal(modal);
                     } else {
@@ -279,11 +247,10 @@
             buttonDisabled(button);
 
             $.ajax({
-                url: "/kategori-transaksi/update",
+                url: "/tahun-ajaran/update",
                 type: "POST",
                 data: {
-                    tipe: $("#edit_tipe").val(),
-                    kategori: $("#edit_kategori").val(),
+                    ta: $("#edit_ta").val(),
                     id: $("#id").val(),
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
@@ -317,7 +284,7 @@
             buttonDisabled(button);
 
             $.ajax({
-                url: "/kategori-transaksi/delete",
+                url: "/tahun-ajaran/delete",
                 type: "POST",
                 data: {
                     id: $(this).data('id'),

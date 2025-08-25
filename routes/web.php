@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriTransaksiController;
 use App\Http\Controllers\RekeningKasController;
+use App\Http\Controllers\TahunAjaranController;
 use App\Http\Controllers\TipeTransaksiController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -48,6 +49,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/rekening-kas/edit', [RekeningKasController::class, 'edit']);
     Route::post('/rekening-kas/update', [RekeningKasController::class, 'update']);
     Route::post('/rekening-kas/delete', [RekeningKasController::class, 'delete']);
+
+    Route::get('/tahun-ajaran', [TahunAjaranController::class, 'index'])->name('tahun-ajaran');
+    Route::post('/tahun-ajaran/store', [TahunAjaranController::class, 'store']);
+    Route::get('/tahun-ajaran/edit', [TahunAjaranController::class, 'edit']);
+    Route::post('/tahun-ajaran/update', [TahunAjaranController::class, 'update']);
+    Route::post('/tahun-ajaran/delete', [TahunAjaranController::class, 'delete']);
 
     Route::post('/logout', function () {
         Auth::logout();

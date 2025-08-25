@@ -44,6 +44,12 @@
                     </a>
                 </li>
 
+                <li class="sidebar-menu-item {{ request()->routeIs('tahun-ajaran') ? 'active' : '' }}">
+                    <a class="sidebar-menu-button" href="/tahun-ajaran">
+                        <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">event</i>
+                        <span class="sidebar-menu-text">Tahun Ajaran</span>
+                    </a>
+                </li>
 
             </ul>
 
