@@ -37,39 +37,60 @@
                     </a>
                 </li>
 
-                <li class="sidebar-menu-item {{ request()->routeIs('rekening-kas') ? 'active' : '' }}">
+                {{-- <li class="sidebar-menu-item {{ request()->routeIs('rekening-kas') ? 'active' : '' }}">
                     <a class="sidebar-menu-button" href="/rekening-kas">
                         <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">account_balance_wallet</i>
                         <span class="sidebar-menu-text">Rekening Kas</span>
                     </a>
-                </li>
+                </li> --}}
 
-                <li class="sidebar-menu-item {{ request()->routeIs('tahun-ajaran') ? 'active' : '' }}">
+                {{-- <li class="sidebar-menu-item {{ request()->routeIs('tahun-ajaran') ? 'active' : '' }}">
                     <a class="sidebar-menu-button" href="/tahun-ajaran">
                         <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">event</i>
                         <span class="sidebar-menu-text">Tahun Ajaran</span>
                     </a>
-                </li>
+                </li> --}}
 
             </ul>
 
             <div class="sidebar-heading">Manajemen & Forecasting</div>
             <div class="sidebar-block p-0">
                 <ul class="sidebar-menu" id="components_menu">
-                    <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-button" href="company.html">
+                    <li class="sidebar-menu-item {{ request()->routeIs('penerimaan-dana') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/penerimaan-dana">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">attach_money</i>
+                            <span class="sidebar-menu-text">Penerimaan Dana</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-item {{ request()->routeIs('transaksi-harian') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/transaksi-harian">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">swap_horiz</i>
-                            <span class="sidebar-menu-text">Transaksi</span>
+                            <span class="sidebar-menu-text">Transaksi Harian</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-item {{ request()->routeIs('rekonsiliasi-bank') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/rekonsiliasi-bank">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">account_balance</i>
+                            <span class="sidebar-menu-text">Rekonsiliasi Bank</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-item {{ request()->routeIs('penyesuaian-penyusutan') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/penyesuaian-penyusutan">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">trending_down</i>
+                            <span class="sidebar-menu-text">Penyesuaian & Penyusutan</span>
                         </a>
                     </li>
 
 
-                    <li class="sidebar-menu-item">
+                    {{-- <li class="sidebar-menu-item">
                         <a class="sidebar-menu-button" href="ui-buttons.html">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">business_center</i>
                             <span class="sidebar-menu-text">Forecasting</span>
                         </a>
-                    </li>
+                    </li> --}}
                 </ul>
             </div>
 

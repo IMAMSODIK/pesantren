@@ -44,4 +44,10 @@
     td button {
         font-size: 16px !important;
     }
+
+    .modal-body {
+        max-height: 70vh; /* tinggi maksimal sesuai layar */
+        overflow-y: auto; /* aktifkan scroll vertikal */
+    }
+
 </style>

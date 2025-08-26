@@ -12,15 +12,15 @@
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Kategori Transaksi</li>
+                                    <li class="breadcrumb-item active" aria-current="page">Rekonsiliasi Bank</li>
                                 </ol>
                             </nav>
-                            <h3 class="m-0">Kategori Transaksi</h3>
+                            <h1 class="m-0">Rekonsiliasi Bank</h1>
                         </div>
                         <div class="ml-auto">
                             <button class="btn btn-info" data-toggle="modal" data-target="#modal-large" type="button"
                                 id="add-data">
-                                + Tambah Kategori Transaksi
+                                + Upload File Mutasi
                             </button>
                         </div>
                     </div>
@@ -28,7 +28,7 @@
                 </div>
             </div>
 
-            <div class="container-fluid page__container">
+            {{-- <div class="container-fluid page__container">
                 <div class="row card-group-row">
                     <div class="col-12 card-group-row__col">
                         <div class="card card-group-row__card card-shadow">
@@ -44,9 +44,10 @@
                                             <thead class="table">
                                                 <tr>
                                                     <th class="text-center">ID</th>
-                                                    <th class="text-center">Kode Transaksi</th>
-                                                    <th class="text-center">Kategori Transaksi</th>
-                                                    <th class="text-center">Tipe Transaksi</th>
+                                                    <th class="text-center">Nama</th>
+                                                    <th class="text-center">Email</th>
+                                                    <th class="text-center">Role</th>
+                                                    <th class="text-center">Status</th>
                                                     <th class="text-center">Aksi</th>
                                                 </tr>
                                             </thead>
@@ -54,29 +55,34 @@
                                                 @php
                                                     $no = 1;
                                                 @endphp
-                                                @foreach ($kategories as $kat)
+                                                @foreach ($users as $user)
                                                     <tr>
-                                                        <td class="text-center">{{ $no++ }}</td>
-                                                        <td class="text-center">{{ $kat->kode }}</td>
-                                                        <td>{{ $kat->name }}</td>
+                                                        <td>{{ $no++ }}</td>
+                                                        <td>{{ $user->name }}</td>
+                                                        <td>{{ $user->email }}</td>
                                                         <td class="text-center">
-                                                            @if ($kat->tipeTransaksi->name == 'Pengeluaran')
-                                                                <span class="text-white badge bg-danger">Pengeluaran</span>
-                                                            @elseif ($kat->tipeTransaksi->name == 'Pemasukan')
-                                                                <span class="text-white badge bg-success">Pemasukan</span>
+                                                            @if ($user->role == 'admin')
+                                                                <span class="text-white badge bg-primary">Admin</span>
                                                             @else
-                                                                <span class="text-white badge bg-secondary">{{$kat->tipeTransaksi->name }}</span>
+                                                                <span class="text-white badge bg-success">Operator</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if ($user->status == 'active')
+                                                                <span class="text-white badge bg-success">Aktif</span>
+                                                            @else
+                                                                <span class="text-white badge bg-danger">Tidak Aktif</span>
                                                             @endif
                                                         </td>
                                                         <td>
                                                             <div class="d-flex flex-wrap gap-2">
                                                                 <button class="btn btn-sm btn-warning text-white edit"
-                                                                    style="margin-right: 5px" data-id="{{ $kat->id }}">
+                                                                    style="margin-right: 5px" data-id="{{ $user->id }}">
                                                                     <i class="fa fa-pencil" aria-hidden="true"></i>
                                                                 </button>
                                                                 <button class="btn btn-sm btn-danger text-white delete"
                                                                     data-toggle="modal" data-target="#modal-warning"
-                                                                    data-id="{{ $kat->id }}">
+                                                                    data-id="{{ $user->id }}">
                                                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                                                 </button>
                                                             </div>
@@ -93,7 +99,7 @@
                     </div>
                 </div>
 
-            </div>
+            </div> --}}
 
         </div>
         <!-- // END drawer-layout__content -->
@@ -121,27 +127,17 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modal-large-title">Tambah Data</h5>
+                    <h5 class="modal-title" id="modal-large-title">Upload File Mutasi</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="tipe">Tipe Transaski</label>
-                        <select class="form-control" id="tipe" required>
-                            @foreach ($types as $type)
-                                <option value="{{$type->id}}">{{$type->name}}</option>
-                            @endforeach
-                        </select>
-                        <div class="invalid-feedback">Pilih Tipe Transaski.</div>
-                        <div class="valid-feedback"></div>
-                    </div>
-                    <div class="col-12 col-md-12 mb-3">
-                        <label for="kategori">Kategori Transaski</label>
-                        <input type="text" class="form-control" id="kategori" placeholder="Masukkan Kategori Transaski"
-                            required="">
-                        <div class="invalid-feedback">Masukkan Kategori Transaski yang valid.</div>
+                        <label for="file">File</label>
+                        <input type="file" class="form-control" id="file" placeholder="Masukkan File"
+                            required="" accept=".xlsx,.xls,.csv">
+                        <div class="invalid-feedback">Masukkan file yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
                 </div>
@@ -153,7 +149,7 @@
         </div>
     </div>
 
-    <div id="modal-large-edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-large-title"
+    {{-- <div id="modal-large-edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-large-title"
         aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -166,20 +162,18 @@
                 <div class="modal-body">
                     <input type="hidden" name="" id="id">
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="edit_tipe">Tipe Transaski</label>
-                        <select class="form-control" id="edit_tipe" required>
-                            @foreach ($types as $type)
-                                <option value="{{$type->id}}">{{$type->name}}</option>
-                            @endforeach
-                        </select>
-                        <div class="invalid-feedback">Pilih Tipe Transaski.</div>
+                        <label for="edit_nama">Nama</label>
+                        <input type="text" class="form-control" id="edit_nama" placeholder="Masukkan nama"
+                            required="">
+                        <div class="invalid-feedback">Masukkan nama yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
+
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="edit_kategori">Kategori Transaski</label>
-                        <input type="text" class="form-control" id="edit_kategori" placeholder="Masukkan Kategori Transaski"
+                        <label for="edit_email">Email</label>
+                        <input type="email" class="form-control" id="edit_email" placeholder="user@example.com"
                             required="">
-                        <div class="invalid-feedback">Masukkan Kategori Transaski yang valid.</div>
+                        <div class="invalid-feedback">Masukkan email yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
                 </div>
@@ -189,7 +183,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div id="modal-warning" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -218,21 +212,27 @@
             closeModal(modal);
             buttonDisabled(button);
 
+            let formData = new FormData();
+            formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+
+            if ($("#file")[0].files.length > 0) {
+                formData.append("file", $("#file")[0].files[0]);
+            }
+
             $.ajax({
-                url: "/kategori-transaksi/store",
+                url: "/rekonsiliasi-bank/import",
                 type: "POST",
-                data: {
-                    tipe: $("#tipe").val(),
-                    kategori: $("#kategori").val(),
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(response) {
                     buttonEnabled(button);
                     if (response.status) {
-                        showToastr('success', "Data berhasil disimpan!");
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000);
+                        console.log(response.data)
+                        // showToastr('success', "Data berhasil diupload!");
+                        // setTimeout(() => {
+                        //     location.reload();
+                        // }, 1000);
                     } else {
                         showToastr('warning', response.message);
                         openModal(modal);
@@ -251,7 +251,7 @@
             buttonDisabled(button);
 
             $.ajax({
-                url: "/kategori-transaksi/edit",
+                url: "/user/edit",
                 type: "GET",
                 data: {
                     id: $(this).data('id')
@@ -259,8 +259,8 @@
                 success: function(response) {
                     buttonEnabled(button);
                     if (response.status) {
-                        $("#edit_tipe").val(response.data.tipe_transaksi_id);
-                        $("#edit_kategori").val(response.data.name);
+                        $("#edit_nama").val(response.data.name);
+                        $("#edit_email").val(response.data.email);
                         $("#id").val(response.data.id);
                         openModal(modal);
                     } else {
@@ -281,11 +281,11 @@
             buttonDisabled(button);
 
             $.ajax({
-                url: "/kategori-transaksi/update",
+                url: "/user/update",
                 type: "POST",
                 data: {
-                    tipe: $("#edit_tipe").val(),
-                    kategori: $("#edit_kategori").val(),
+                    name: $("#edit_nama").val(),
+                    email: $("#edit_email").val(),
                     id: $("#id").val(),
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
@@ -319,7 +319,7 @@
             buttonDisabled(button);
 
             $.ajax({
-                url: "/kategori-transaksi/delete",
+                url: "/user/delete",
                 type: "POST",
                 data: {
                     id: $(this).data('id'),

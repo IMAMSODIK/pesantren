@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kategori_transaksis', function (Blueprint $table) {
+        Schema::create('jurnal_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tipe_transaksi_id');
-            $table->string('kode')->unique();
-            $table->string('name');
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->foreignId('transaksi_id');
+            $table->foreignId('kategori_transaksi_id');
+            $table->enum('posisi', ['debit', 'kredit']);
+            $table->decimal('nominal', 15, 2);
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kategori_transaksis');
+        Schema::dropIfExists('jurnal_details');
     }
 };

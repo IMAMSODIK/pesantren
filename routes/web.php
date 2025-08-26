@@ -3,10 +3,15 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriTransaksiController;
+use App\Http\Controllers\MutasiBankController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RekeningKasController;
 use App\Http\Controllers\TahunAjaranController;
 use App\Http\Controllers\TipeTransaksiController;
+use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\TransaksiHarianController;
 use App\Http\Controllers\UserController;
+use App\Models\Transaksi;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +60,29 @@ Route::middleware('auth')->group(function () {
     Route::get('/tahun-ajaran/edit', [TahunAjaranController::class, 'edit']);
     Route::post('/tahun-ajaran/update', [TahunAjaranController::class, 'update']);
     Route::post('/tahun-ajaran/delete', [TahunAjaranController::class, 'delete']);
+
+    Route::get('/penerimaan-dana', [TransaksiController::class, 'index'])->name('penerimaan-dana');
+    Route::post('/penerimaan-dana/store', [TransaksiController::class, 'store']);
+    Route::get('/penerimaan-dana/edit', [TransaksiController::class, 'edit']);
+    Route::post('/penerimaan-dana/update', [TransaksiController::class, 'update']);
+    Route::post('/penerimaan-dana/delete', [TransaksiController::class, 'delete']);
+    Route::get('/penerimaan-dana/search', [TransaksiController::class, 'search']);
+
+    Route::get('/transaksi-harian', [TransaksiHarianController::class, 'index'])->name('transaksi-harian');
+    Route::post('/transaksi-harian/store', [TransaksiHarianController::class, 'store']);
+    Route::get('/transaksi-harian/edit', [TransaksiHarianController::class, 'edit']);
+    Route::post('/transaksi-harian/update', [TransaksiHarianController::class, 'update']);
+    Route::post('/transaksi-harian/delete', [TransaksiHarianController::class, 'delete']);
+    Route::get('/transaksi-harian/search', [TransaksiHarianController::class, 'search']);
+
+    Route::get('/rekonsiliasi-bank', [MutasiBankController::class, 'index'])->name('rekonsiliasi-bank');
+    Route::post('/rekonsiliasi-bank/import', [MutasiBankController::class, 'import'])->name('rekonsiliasi.import');
+    Route::get('/rekonsiliasi-bank/proses', [MutasiBankController::class, 'reconcile'])->name('rekonsiliasi.proses');
+    Route::get('/rekonsiliasi-bank/laporan', [MutasiBankController::class, 'laporan'])->name('rekonsiliasi.laporan');
+
+    Route::get('/profile', [ProfileController::class, 'index']);
+    Route::post('/profile/update-data', [ProfileController::class, 'updateProfile']);
+    Route::post('/profile/update-password', [ProfileController::class, 'updatePassword']);
 
     Route::post('/logout', function () {
         Auth::logout();
