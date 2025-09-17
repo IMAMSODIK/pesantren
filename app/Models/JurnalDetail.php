@@ -17,7 +17,7 @@ class JurnalDetail extends Model
         return $this->belongsTo(KategoriTransaksi::class);
     }
 
-    public function trasakasi(): BelongsTo{
+    public function transaksi(): BelongsTo{
         return $this->belongsTo(Transaksi::class);
     }
 }

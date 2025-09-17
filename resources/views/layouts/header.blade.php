@@ -12,8 +12,8 @@
 
                 <!-- Navbar Brand -->
                 <a href="/" class="navbar-brand ">
-                    <img class="navbar-brand-icon" src="{{asset('assets/images/logo%402x.png')}}" height="26" alt="BizzArk">
-                    <span>MonMa</span>
+                    <img class="navbar-brand-icon" src="{{asset('own_assets/images/logo.png')}}" height="50" alt="BizzArk">
+                    <span>Al Barokah <br><small>Simalungun</small></span>
                 </a>
 
                 <ul class="nav navbar-nav ml-auto d-none d-md-flex border-left">

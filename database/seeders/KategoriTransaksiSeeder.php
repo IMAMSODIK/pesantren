@@ -14,8 +14,61 @@ class KategoriTransaksiSeeder extends Seeder
      */
     public function run(): void
     {
+        // aset lancar
+        $al = TipeTransaksi::create([
+            'name' => 'Aset Lancar'
+        ]);
+
+        KategoriTransaksi::create([
+            'tipe_transaksi_id' => $al->id,
+            'kode' => '101',
+            'name' => 'Kas',
+        ]);
+
+        KategoriTransaksi::create([
+            'tipe_transaksi_id' => $al->id,
+            'kode' => '102',
+            'name' => 'Bank',
+        ]);
+
+        KategoriTransaksi::create([
+            'tipe_transaksi_id' => $al->id,
+            'kode' => '103',
+            'name' => 'Piutang SPP',
+        ]);
+
+        KategoriTransaksi::create([
+            'tipe_transaksi_id' => $al->id,
+            'kode' => '104',
+            'name' => 'Piutang Uang Pembangunan',
+        ]);
+
+        KategoriTransaksi::create([
+            'tipe_transaksi_id' => $al->id,
+            'kode' => '105',
+            'name' => 'Pengadaan barang dan ATK',
+        ]);
+
+        KategoriTransaksi::create([
+            'tipe_transaksi_id' => $al->id,
+            'kode' => '106',
+            'name' => 'Piutang Guru dan Karyawan',
+        ]);
+
+        KategoriTransaksi::create([
+            'tipe_transaksi_id' => $al->id,
+            'kode' => '107',
+            'name' => 'Piutang Lainnya',
+        ]);
+
         $at = TipeTransaksi::create([
             'name' => 'Aset Tetap'
+        ]);
+
+        KategoriTransaksi::create([
+            'tipe_transaksi_id' => $at->id,
+            'kode' => '299',
+            'name' => 'Akumulasi Penyusutan',
         ]);
 
         KategoriTransaksi::create([
@@ -48,52 +101,6 @@ class KategoriTransaksiSeeder extends Seeder
             'name' => 'Asrama Santri Wati',
         ]);
 
-        $al = TipeTransaksi::create([
-            'name' => 'Aset Lancar'
-        ]);
-
-        KategoriTransaksi::create([
-            'tipe_transaksi_id' => $al->id,
-            'kode' => '101',
-            'name' => 'Kas',
-        ]);
-
-        KategoriTransaksi::create([
-            'tipe_transaksi_id' => $al->id,
-            'kode' => '102',
-            'name' => 'Bank',
-        ]);
-
-        KategoriTransaksi::create([
-            'tipe_transaksi_id' => $al->id,
-            'kode' => '103',
-            'name' => 'Piutang SPP',
-        ]);
-
-        KategoriTransaksi::create([
-            'tipe_transaksi_id' => $al->id,
-            'kode' => '104',
-            'name' => 'Piutang Utang Pembangunan',
-        ]);
-
-        KategoriTransaksi::create([
-            'tipe_transaksi_id' => $al->id,
-            'kode' => '105',
-            'name' => 'Piutang Barang',
-        ]);
-
-        KategoriTransaksi::create([
-            'tipe_transaksi_id' => $al->id,
-            'kode' => '106',
-            'name' => 'Piutang Guru dan Karyawan',
-        ]);
-
-        KategoriTransaksi::create([
-            'tipe_transaksi_id' => $al->id,
-            'kode' => '107',
-            'name' => 'Piutang Lainnya',
-        ]);
-
         $l = TipeTransaksi::create([
             'name' => 'Liabilitas'
         ]);
@@ -116,13 +123,25 @@ class KategoriTransaksiSeeder extends Seeder
             'name' => 'Utang Koperasi Usaha (THR)',
         ]);
 
+        KategoriTransaksi::create([
+            'tipe_transaksi_id' => $l->id,
+            'kode' => '304',
+            'name' => 'Utang Gaji, Lembuar Karyawan',
+        ]);
+
+        KategoriTransaksi::create([
+            'tipe_transaksi_id' => $l->id,
+            'kode' => '305',
+            'name' => 'Utang Listrik, Telepon, Internet',
+        ]);
+
         $e = TipeTransaksi::create([
             'name' => 'Ekuitas'
         ]);
 
         KategoriTransaksi::create([
             'tipe_transaksi_id' => $e->id,
-            'kode' => '310',
+            'kode' => '403',
             'name' => 'Modal',
         ]);
 
@@ -133,19 +152,13 @@ class KategoriTransaksiSeeder extends Seeder
         KategoriTransaksi::create([
             'tipe_transaksi_id' => $db->id,
             'kode' => '401',
-            'name' => 'Dana Tidak Terikat',
+            'name' => 'Aset Neto tanpa pembatasan',
         ]);
 
         KategoriTransaksi::create([
             'tipe_transaksi_id' => $db->id,
             'kode' => '402',
-            'name' => 'Dana Terikat Temporer',
-        ]);
-
-        KategoriTransaksi::create([
-            'tipe_transaksi_id' => $db->id,
-            'kode' => '403',
-            'name' => 'Dana Terikat Permanen',
+            'name' => 'Aset Neto tanpa pembatasan',
         ]);
 
         $ptt = TipeTransaksi::create([
@@ -194,6 +207,12 @@ class KategoriTransaksiSeeder extends Seeder
 
         $btt = TipeTransaksi::create([
             'name' => 'Beban Tidak Terikat'
+        ]);
+
+        KategoriTransaksi::create([
+            'tipe_transaksi_id' => $btt->id,
+            'kode' => '615',
+            'name' => 'Beban Penyusutan',
         ]);
 
         KategoriTransaksi::create([
@@ -247,7 +266,7 @@ class KategoriTransaksiSeeder extends Seeder
         KategoriTransaksi::create([
             'tipe_transaksi_id' => $btt->id,
             'kode' => '610',
-            'name' => 'Biaya Lain lain',
+            'name' => 'Biaya Lain-lain',
         ]);
 
         KategoriTransaksi::create([

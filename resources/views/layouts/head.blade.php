@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Dashboard</title>
+<title>{{ $pageTitle }}</title>
 
 <link type="text/css" href="{{ asset('assets/vendor/perfect-scrollbar.css') }}" rel="stylesheet">
 
@@ -46,8 +46,13 @@
     }
 
     .modal-body {
-        max-height: 70vh; /* tinggi maksimal sesuai layar */
-        overflow-y: auto; /* aktifkan scroll vertikal */
+        max-height: 70vh;
+        /* tinggi maksimal sesuai layar */
+        overflow-y: auto;
+        /* aktifkan scroll vertikal */
     }
 
+    .text-end {
+        text-align: right;
+    }
 </style>

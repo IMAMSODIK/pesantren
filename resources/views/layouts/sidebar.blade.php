@@ -37,6 +37,13 @@
                     </a>
                 </li>
 
+                <li class="sidebar-menu-item {{ request()->routeIs('aset') ? 'active' : '' }}">
+                    <a class="sidebar-menu-button" href="/aset">
+                        <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">account_balance</i>
+                        <span class="sidebar-menu-text">Aset</span>
+                    </a>
+                </li>
+
                 {{-- <li class="sidebar-menu-item {{ request()->routeIs('rekening-kas') ? 'active' : '' }}">
                     <a class="sidebar-menu-button" href="/rekening-kas">
                         <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">account_balance_wallet</i>
@@ -70,17 +77,23 @@
                         </a>
                     </li>
 
-                    <li class="sidebar-menu-item {{ request()->routeIs('rekonsiliasi-bank') ? 'active' : '' }}">
+                    {{-- <li class="sidebar-menu-item {{ request()->routeIs('rekonsiliasi-bank') ? 'active' : '' }}">
                         <a class="sidebar-menu-button" href="/rekonsiliasi-bank">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">account_balance</i>
                             <span class="sidebar-menu-text">Rekonsiliasi Bank</span>
                         </a>
+                    </li> --}}
+                    <li class="sidebar-menu-item {{ request()->routeIs('penyesuaian') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/penyesuaian">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">autorenew</i>
+                            <span class="sidebar-menu-text">Penyesuaian</span>
+                        </a>
                     </li>
 
-                    <li class="sidebar-menu-item {{ request()->routeIs('penyesuaian-penyusutan') ? 'active' : '' }}">
-                        <a class="sidebar-menu-button" href="/penyesuaian-penyusutan">
+                    <li class="sidebar-menu-item {{ request()->routeIs('penyusutan') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/penyusutan">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">trending_down</i>
-                            <span class="sidebar-menu-text">Penyesuaian & Penyusutan</span>
+                            <span class="sidebar-menu-text">Penyusutan</span>
                         </a>
                     </li>
 
@@ -94,13 +107,62 @@
                 </ul>
             </div>
 
-            <div class="sidebar-heading">Laporan</div>
+            <div class="sidebar-heading">Report</div>
             <div class="sidebar-block p-0">
                 <ul class="sidebar-menu" id="components_menu">
-                    <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-button" href="income.html">
+                    <li class="sidebar-menu-item {{ request()->routeIs('jurnal_umum') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/laporan/jurnal-umum">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">dns</i>
-                            <span class="sidebar-menu-text">Laporan Keuangan</span>
+                            <span class="sidebar-menu-text">Jurnal Umum</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-item {{ request()->routeIs('buku_besar') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/laporan/buku-besar">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">dns</i>
+                            <span class="sidebar-menu-text">Buku Besar</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-item {{ request()->routeIs('neraca_saldo') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/laporan/neraca-saldo">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">dns</i>
+                            <span class="sidebar-menu-text">Neraca Saldo</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-item {{ request()->routeIs('laba_rugi') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/laporan/laba-rugi">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">dns</i>
+                            <span class="sidebar-menu-text">Laba Rugi</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-item {{ request()->routeIs('neraca') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/laporan/neraca">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">dns</i>
+                            <span class="sidebar-menu-text">Neraca</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-item {{ request()->routeIs('penyusutan_aset') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/laporan/penyusutan-aset">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">dns</i>
+                            <span class="sidebar-menu-text">Penyusutan Aset</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-item {{ request()->routeIs('arus_kas') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/laporan/arus-kas">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">dns</i>
+                            <span class="sidebar-menu-text">Arus Kas</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-item {{ request()->routeIs('piutang_utang') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/laporan/piutang-utang">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">dns</i>
+                            <span class="sidebar-menu-text">Piutang & Utang</span>
                         </a>
                     </li>
                 </ul>

@@ -7,36 +7,23 @@
             <div class="container-fluid  page__heading-container">
                 <div class="page__heading">
 
-                    <div class="d-flex align-items-center justify-content-between">
-                        <!-- Kiri -->
+                    <div class="d-flex align-items-center">
                         <div>
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Rekonsiliasi Bank</li>
+                                    <li class="breadcrumb-item active" aria-current="page">Aset</li>
                                 </ol>
                             </nav>
-                            <h1 class="m-0">Rekonsiliasi Bank</h1>
+                            <h3 class="m-0">Aset</h3>
                         </div>
-
-                        <!-- Kanan -->
-                        <div class="d-flex align-items-center gap-2 ms-auto" style="max-width: 400px;">
-                            <div class="flex-grow-1">
-                                <label for="file">File</label>
-                                <input type="file" class="form-control" id="file" required accept=".csv">
-                                <div class="invalid-feedback">Masukkan file yang valid.</div>
-                            </div>
-                            <div>
-                                <label>&nbsp;</label>
-                                <button class="btn btn-info w-100" type="button" id="store">Import</button>
-                            </div>
-                            <div style="margin-left: 5px">
-                                <label>&nbsp;</label>
-                                <button class="btn btn-success w-100" type="button" id="btnLaporan">Laporan</button>
-                            </div>
+                        <div class="ml-auto">
+                            <button class="btn btn-info" data-toggle="modal" data-target="#modal-large" type="button"
+                                id="add-data">
+                                + Tambah Aset
+                            </button>
                         </div>
                     </div>
-
 
                 </div>
             </div>
@@ -56,15 +43,20 @@
                                         <table id="tabelKaryawan" class="table table-striped table-bordered align-middle">
                                             <thead class="table">
                                                 <tr>
-                                                    <th>Tanggal</th>
-                                                    <th>Deskripsi</th>
-                                                    <th>Debit</th>
-                                                    <th>Kredit</th>
-                                                    <th>Status</th>
+                                                    <th class="text-center">ID</th>
+                                                    <th class="text-center">Nama Aset</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {{-- Data akan diisi lewat JS --}}
+                                                @php
+                                                    $no = 1;
+                                                @endphp
+                                                @foreach ($asets as $aset)
+                                                    <tr style="cursor: pointer" class="row-data" data-id="{{$aset->id}}">
+                                                        <td>{{ $no++ }}</td>
+                                                        <td>{{ $aset->nama }}</td>
+                                                    </tr>
+                                                @endforeach
                                             </tbody>
                                         </table>
                                     </div>
@@ -103,17 +95,57 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modal-large-title">Upload File Mutasi</h5>
+                    <h5 class="modal-title" id="modal-large-title">Tambah Data</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="file">File</label>
-                        <input type="file" class="form-control" id="file" placeholder="Masukkan File" required=""
-                            accept=".csv">
-                        <div class="invalid-feedback">Masukkan file yang valid.</div>
+                        <label for="nama">Nama Aset</label>
+                        <input type="text" class="form-control" id="nama" placeholder="Masukkan Nama Aset"
+                            required="">
+                        <div class="invalid-feedback">Masukkan Nama Aset yang valid.</div>
+                        <div class="valid-feedback"></div>
+                    </div>
+                    <div class="col-12 col-md-12 mb-3">
+                        <label for="nilai">Nilai Perolehan</label>
+                        <input type="text" class="form-control" id="nilai" placeholder="Masukkan Nilai Perolehan"
+                            required="">
+                        <div class="invalid-feedback">Masukkan Niali Perolehan yang valid.</div>
+                        <div class="valid-feedback"></div>
+                    </div>
+                    <div class="col-12 col-md-12 mb-3">
+                        <label for="umur_ekonomis">Umur Ekonomis</label>
+                        <input type="text" class="form-control" id="umur_ekonomis" placeholder="Masukkan Umur Ekonomis"
+                            required="">
+                        <div class="invalid-feedback">Masukkan Umur Ekonomis yang valid.</div>
+                        <div class="valid-feedback"></div>
+                    </div>
+                    <div class="col-12 col-md-12 mb-3">
+                        <label for="tanggal_perolehan">Tanggal Perolehan</label>
+                        <input type="date" class="form-control" id="tanggal_perolehan" placeholder="Pilih Tanggal Perolehan"
+                            required="">
+                        <div class="invalid-feedback">Masukkan Tanggal Perolehan yang valid.</div>
+                        <div class="valid-feedback"></div>
+                    </div>
+                    <div class="col-12 col-md-12 mb-3">
+                        <label for="kategori">Kategori Transaski</label>
+                        <select class="form-control" id="kategori" required>
+                            @foreach ($kategories as $kat)
+                                <option value="{{ $kat->id }}">{{ $kat->name }}</option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback">Masukkan Kategori Transaksi yang valid.</div>
+                        <div class="valid-feedback"></div>
+                    </div>
+                    <div class="col-12 col-md-12 mb-3">
+                        <label for="akun_kredit">Pilih Akun Kredit</label>
+                        <select class="form-control" id="akun_kredit" required>
+                            <option value="101">Kas</option>
+                            <option value="102">Bank</option>
+                        </select>
+                        <div class="invalid-feedback">Pilih Akun Kredit yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
                 </div>
@@ -125,7 +157,7 @@
         </div>
     </div>
 
-    {{-- <div id="modal-large-edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-large-title"
+    <div id="modal-large-edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-large-title"
         aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -138,28 +170,61 @@
                 <div class="modal-body">
                     <input type="hidden" name="" id="id">
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="edit_nama">Nama</label>
-                        <input type="text" class="form-control" id="edit_nama" placeholder="Masukkan nama"
+                        <label for="edit_nama">Nama Aset</label>
+                        <input type="text" class="form-control" id="edit_nama" placeholder="Masukkan Nama Aset"
                             required="">
-                        <div class="invalid-feedback">Masukkan nama yang valid.</div>
+                        <div class="invalid-feedback">Masukkan Nama Aset yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
-
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="edit_email">Email</label>
-                        <input type="email" class="form-control" id="edit_email" placeholder="user@example.com"
+                        <label for="edit_nilai">Nilai Perolehan</label>
+                        <input type="text" class="form-control" id="edit_nilai" placeholder="Masukkan Nilai Perolehan"
                             required="">
-                        <div class="invalid-feedback">Masukkan email yang valid.</div>
+                        <div class="invalid-feedback">Masukkan Niali Perolehan yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
+                    <div class="col-12 col-md-12 mb-3">
+                        <label for="edit_umur_ekonomis">Umur Ekonomis</label>
+                        <input type="text" class="form-control" id="edit_umur_ekonomis" placeholder="Masukkan Umur Ekonomis"
+                            required="">
+                        <div class="invalid-feedback">Masukkan Umur Ekonomis yang valid.</div>
+                        <div class="valid-feedback"></div>
+                    </div>
+                    <div class="col-12 col-md-12 mb-3">
+                        <label for="edit_tanggal_perolehan">Tanggal Perolehan</label>
+                        <input type="date" class="form-control" id="edit_tanggal_perolehan" placeholder="Pilih Tanggal Perolehan"
+                            required="">
+                        <div class="invalid-feedback">Masukkan Tanggal Perolehan yang valid.</div>
+                        <div class="valid-feedback"></div>
+                    </div>
+                    <div class="col-12 col-md-12 mb-3">
+                        <label for="edit_kategori">Kategori Transaski</label>
+                        <select class="form-control" id="edit_kategori" required>
+                            @foreach ($kategories as $kat)
+                                <option value="{{ $kat->id }}">{{ $kat->name }}</option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback">Masukkan Kategori Transaksi yang valid.</div>
+                        <div class="valid-feedback"></div>
+                    </div>
+                    {{-- <div class="col-12 col-md-12 mb-3">
+                        <label for="edit_akun_kredit">Pilih Akun Kredit</label>
+                        <select class="form-control" id="edit_akun_kredit" required>
+                            <option value="101">Kas</option>
+                            <option value="102">Bank</option>
+                        </select>
+                        <div class="invalid-feedback">Pilih Akun Kredit yang valid.</div>
+                        <div class="valid-feedback"></div>
+                    </div> --}}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light close-modal" data-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-light close-modal" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" id="update">Update</button>
+                    <button type="button" class="btn btn-danger delete">Hapus</button>
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
 
     <div id="modal-warning" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -178,89 +243,69 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
     <script>
         let modal = $("#modal-large"),
             button = "";
         $("#store").on("click", function(e) {
             e.preventDefault();
-            let modal = $("#modal-large"),
-                button = $(this);
-
+            modal = $("#modal-large"), button = $(this);
             closeModal(modal);
             buttonDisabled(button);
 
-            let formData = new FormData();
-            formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
-
-            if ($("#file")[0].files.length > 0) {
-                formData.append("file", $("#file")[0].files[0]);
-            }
-
             $.ajax({
-                url: "/rekonsiliasi-bank/import",
+                url: "/aset/store",
                 type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
+                data: {
+                    nama: $("#nama").val(),
+                    nilai: $("#nilai").val(),
+                    umur_ekonomis: $("#umur_ekonomis").val(),
+                    tanggal_perolehan: $("#tanggal_perolehan").val(),
+                    kategori: $("#kategori").val(),
+                    akun_kredit : $("#akun_kredit").val(),
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
                 success: function(response) {
                     buttonEnabled(button);
-
                     if (response.status) {
-                        showToastr('success', "Data berhasil diupload & direkonsiliasi!");
-
-                        let tbody = $("#tabelKaryawan tbody");
-                        tbody.empty();
-
-                        $.each(response.data, function(i, row) {
-                            let tr = `
-                        <tr>
-                            <td>${row.tanggal}</td>
-                            <td>${row.deskripsi}</td>
-                            <td>${row.debit}</td>
-                            <td>${row.kredit}</td>
-                            <td>
-                                <span class="badge text-center text-white ${row.status == 'Matched' ? 'bg-success' : 'bg-danger'}">
-                                    ${row.status}
-                                </span>
-                            </td>
-                        </tr>`;
-                            tbody.append(tr);
-                        });
-
+                        showToastr('success', "Data berhasil disimpan!");
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
                     } else {
                         showToastr('warning', response.message);
                         openModal(modal);
                     }
                 },
-                error: function(xhr) {
+                error: function(response) {
                     buttonEnabled(button);
-                    let msg = xhr.responseJSON?.message ?? "Terjadi kesalahan server!";
-                    showToastr('warning', msg);
+                    showToastr('warning', response.message);
                     openModal(modal);
                 }
             });
         });
 
-
-        $(document).on("click", ".edit", function() {
+        $(document).on("click", ".row-data", function() {
             modal = $("#modal-large-edit"), button = $(this);
+            let id = $(this).data('id');
             buttonDisabled(button);
 
             $.ajax({
-                url: "/user/edit",
+                url: "/aset/edit",
                 type: "GET",
                 data: {
-                    id: $(this).data('id')
+                    id: id
                 },
                 success: function(response) {
                     buttonEnabled(button);
                     if (response.status) {
-                        $("#edit_nama").val(response.data.name);
-                        $("#edit_email").val(response.data.email);
+                        $("#edit_nama").val(response.data.nama);
+                        $("#edit_nilai").val(response.data.nilai_perolehan);
+                        $("#edit_umur_ekonomis").val(response.data.umur_ekonomis);
+                        $("#edit_tanggal_perolehan").val(response.data.tanggal_perolehan);
+                        $("#edit_kategori").val(response.data.kategori_transaksi_id);
                         $("#id").val(response.data.id);
+                        $(".delete").attr('data-id', response.data.id);
                         openModal(modal);
                     } else {
                         showToastr('warning', response.message);
@@ -280,11 +325,14 @@
             buttonDisabled(button);
 
             $.ajax({
-                url: "/user/update",
+                url: "/aset/update",
                 type: "POST",
                 data: {
-                    name: $("#edit_nama").val(),
-                    email: $("#edit_email").val(),
+                    nama: $("#edit_nama").val(),
+                    nilai: $("#edit_nilai").val(),
+                    umur_ekonomis: $("#edit_umur_ekonomis").val(),
+                    tanggal_perolehan: $("#edit_tanggal_perolehan").val(),
+                    kategori: $("#edit_kategori").val(),
                     id: $("#id").val(),
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
@@ -311,6 +359,8 @@
         $(document).on("click", ".delete", function() {
             let id = $(this).data("id");
             $("#delete").attr("data-id", id);
+            closeModal(modal);
+            $("#modal-warning").modal('show');
         });
 
         $("#delete").on("click", function() {
@@ -318,7 +368,7 @@
             buttonDisabled(button);
 
             $.ajax({
-                url: "/user/delete",
+                url: "/aset/delete",
                 type: "POST",
                 data: {
                     id: $(this).data('id'),
@@ -345,18 +395,5 @@
         $(".close-modal").on("click", function() {
             closeModal(modal);
         })
-
-        $("#btnLaporan").on("click", function () {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            doc.text("Laporan Rekonsiliasi Bank", 14, 15);
-            doc.autoTable({ 
-                html: '#tabelKaryawan', 
-                startY: 20 
-            });
-
-            doc.save("Laporan_Rekonsiliasi.pdf");
-        });
     </script>
 @endsection

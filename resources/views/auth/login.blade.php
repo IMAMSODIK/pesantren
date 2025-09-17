@@ -21,10 +21,10 @@
     <div class="layout-login__overlay"></div>
     <div class="layout-login__form bg-white" data-perfect-scrollbar>
         <div class="d-flex justify-content-center mt-2 mb-5 navbar-light">
-            <a href="index.html" class="navbar-brand" style="min-width: 0">
-                <img class="navbar-brand-icon" src="{{ asset('assets/images/stack-logo-blue.svg') }}" width="25"
-                    alt="Stack">
-                <span>Stack</span>
+            <a href="/login" class="navbar-brand" style="min-width: 0">
+                <img class="navbar-brand-icon" src="{{asset('own_assets/images/logo.png')}}" width="100"
+                    alt="Logo Pesantren">
+                {{-- <span>Stack</span> --}}
             </a>
         </div>
 
