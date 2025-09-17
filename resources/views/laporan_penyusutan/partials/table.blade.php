@@ -15,7 +15,7 @@
             <tr>
                 <td>{{ $row['kode'] }}</td>
                 <td>{{ $row['nama'] }}</td>
-                <td class="text-end">Rp {{ number_format($row['nominal'], 2, ',', '.') }}</td>
+                <td class="text-end">Rp. {{ number_format($row['nominal'], 2, ',', '.') }}</td>
             </tr>
         @empty
             <tr>
@@ -24,7 +24,7 @@
         @endforelse
         <tr class="fw-bold bg-light">
             <td colspan="2">Total Pendapatan</td>
-            <td class="text-end">Rp {{ number_format($totalPendapatan, 2, ',', '.') }}</td>
+            <td class="text-end">Rp. {{ number_format($totalPendapatan, 2, ',', '.') }}</td>
         </tr>
     </tbody>
 </table>
@@ -46,7 +46,7 @@
             <tr>
                 <td>{{ $row['kode'] }}</td>
                 <td>{{ $row['nama'] }}</td>
-                <td class="text-end">Rp {{ number_format($row['nominal'], 2, ',', '.') }}</td>
+                <td class="text-end">Rp. {{ number_format($row['nominal'], 2, ',', '.') }}</td>
             </tr>
         @empty
             <tr>
@@ -55,7 +55,7 @@
         @endforelse
         <tr class="fw-bold bg-light">
             <td colspan="2">Total Beban</td>
-            <td class="text-end">Rp {{ number_format($totalBeban, 2, ',', '.') }}</td>
+            <td class="text-end">Rp. {{ number_format($totalBeban, 2, ',', '.') }}</td>
         </tr>
     </tbody>
 </table>
@@ -65,7 +65,7 @@
     <tfoot class="fw-bold text-white bg-dark">
         <tr>
             <td colspan="2" class="text-center">Laba/Rugi Bersih</td>
-            <td class="text-end">Rp {{ number_format($labaBersih, 2, ',', '.') }}</td>
+            <td class="text-end">Rp. {{ number_format($labaBersih, 2, ',', '.') }}</td>
         </tr>
     </tfoot>
 </table>

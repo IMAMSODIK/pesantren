@@ -97,7 +97,6 @@
         $(button).attr('disabled', false);
         $(button).css('cursor', 'default');
     }
-
 </script>
 
 @yield('own-script')

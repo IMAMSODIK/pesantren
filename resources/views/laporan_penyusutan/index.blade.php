@@ -45,10 +45,10 @@
                             @foreach ($asetList as $aset)
                                 <tr>
                                     <td>{{ $aset->nama }}</td>
-                                    <td class="text-end">{{ number_format($aset->nilai_perolehan, 0, ',', '.') }}</td>
+                                    <td class="text-end">Rp. {{ number_format($aset->nilai_perolehan, 0, ',', '.') }}</td>
                                     <td class="text-end">{{ $aset->umur_ekonomis }}</td>
-                                    <td class="text-end">{{ number_format($aset->akumulasi_penyusutan, 0, ',', '.') }}</td>
-                                    <td class="text-end">{{ number_format($aset->nilai_buku, 0, ',', '.') }}</td>
+                                    <td class="text-end">Rp. {{ number_format($aset->akumulasi_penyusutan, 0, ',', '.') }}</td>
+                                    <td class="text-end">Rp. {{ number_format($aset->nilai_buku, 0, ',', '.') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

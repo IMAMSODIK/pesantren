@@ -392,7 +392,7 @@
             }
 
             $.ajax({
-                url: "/transaksi-harian/store",
+                url: "/piutang/store",
                 type: "POST",
                 data: formData,
                 processData: false,
@@ -424,7 +424,7 @@
             buttonDisabled(button);
 
             $.ajax({
-                url: "/transaksi-harian/edit",
+                url: "/piutang/edit",
                 type: "GET",
                 data: {
                     id: $(this).data('id')
@@ -484,7 +484,7 @@
             }
 
             $.ajax({
-                url: "/transaksi-harian/update",
+                url: "/piutang/update",
                 type: "POST",
                 data: formData,
                 processData: false,
@@ -520,7 +520,7 @@
             buttonDisabled(button);
 
             $.ajax({
-                url: "/transaksi-harian/delete",
+                url: "/piutang/delete",
                 type: "POST",
                 data: {
                     id: $(this).data('id'),
@@ -566,7 +566,7 @@
 
             function loadTransaksi() {
                 $.ajax({
-                    url: "/transaksi-harian/search",
+                    url: "/piutang/search",
                     type: "GET",
                     data: {
                         name: $("#filter_name").val(),

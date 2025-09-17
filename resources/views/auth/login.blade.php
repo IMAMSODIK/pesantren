@@ -75,7 +75,7 @@
             </div>
             <div class="form-group text-center">
                 <button class="btn btn-primary mb-3" type="submit">Login</button><br>
-                <a href="#">Lupa password?</a>
+                {{-- <a href="#">Lupa password?</a> --}}
             </div>
         </form>
 

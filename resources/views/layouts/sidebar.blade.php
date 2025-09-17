@@ -15,13 +15,14 @@
 
             <div class="sidebar-heading sidebar-m-t">MASTER</div>
             <ul class="sidebar-menu">
-
-                <li class="sidebar-menu-item {{ request()->routeIs('user') ? 'active' : '' }}">
-                    <a class="sidebar-menu-button" href="/user">
-                        <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">people</i>
-                        <span class="sidebar-menu-text">Pengguna</span>
-                    </a>
-                </li>
+                @if (auth()->user()->role == 'admin')
+                    <li class="sidebar-menu-item {{ request()->routeIs('user') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/user">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">people</i>
+                            <span class="sidebar-menu-text">Pengguna</span>
+                        </a>
+                    </li>
+                @endif
 
                 <li class="sidebar-menu-item {{ request()->routeIs('tipe-transaksi') ? 'active' : '' }}">
                     <a class="sidebar-menu-button" href="/tipe-transaksi">
@@ -60,7 +61,7 @@
 
             </ul>
 
-            <div class="sidebar-heading">Manajemen & Forecasting</div>
+            <div class="sidebar-heading">Manajemen</div>
             <div class="sidebar-block p-0">
                 <ul class="sidebar-menu" id="components_menu">
                     <li class="sidebar-menu-item {{ request()->routeIs('penerimaan-dana') ? 'active' : '' }}">
@@ -74,6 +75,13 @@
                         <a class="sidebar-menu-button" href="/transaksi-harian">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">swap_horiz</i>
                             <span class="sidebar-menu-text">Transaksi Harian</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-menu-item {{ request()->routeIs('piutang') ? 'active' : '' }}">
+                        <a class="sidebar-menu-button" href="/piutang">
+                            <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">swap_horiz</i>
+                            <span class="sidebar-menu-text">Piutang</span>
                         </a>
                     </li>
 

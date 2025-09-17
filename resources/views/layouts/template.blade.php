@@ -31,14 +31,8 @@
     <!-- // END header-layout -->
 
     <!-- App Settings FAB -->
-    <div id="app-settings">
-        <app-settings layout-active="default"
-            :layout-location="{
-                'default': 'index.html',
-                'fixed': 'fixed-dashboard.html',
-                'fluid': 'fluid-dashboard.html',
-                'mini': 'mini-dashboard.html'
-            }"></app-settings>
+    <div id="app-settings" style="display: none">
+        <app-settings layout-active="default"></app-settings>
     </div>
 
     @include('layouts.script')

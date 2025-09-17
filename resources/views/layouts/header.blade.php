@@ -17,7 +17,7 @@
                 </a>
 
                 <ul class="nav navbar-nav ml-auto d-none d-md-flex border-left">
-                    <li class="nav-item dropdown">
+                    {{-- <li class="nav-item dropdown">
                         <a href="#notifications_menu" class="nav-link dropdown-toggle" data-toggle="dropdown"
                             data-caret="false">
                             <i class="material-icons nav-icon navbar-notifications-indicator">notifications_none</i>
@@ -163,7 +163,7 @@
                                 class="dropdown-item text-center navbar-notifications-menu__footer">View
                                 All</a>
                         </div>
-                    </li>
+                    </li> --}}
                 </ul>
 
                 <ul class="nav navbar-nav d-none d-sm-flex border-left navbar-border navbar-height align-items-center">

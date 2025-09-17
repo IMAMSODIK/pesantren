@@ -45,7 +45,7 @@
                                     <label for="filter_buckets">Kategori Transaksi</label><br>
                                     <select id="filter_buckets" class="custom-select">
                                         <option value="all">Semua</option>
-                                        @foreach ($all_kategories as $kat)
+                                        @foreach ($kategoris as $kat)
                                             <option value="{{ $kat->id }}">{{ $kat->name }}</option>
                                         @endforeach
                                     </select>
@@ -235,7 +235,7 @@
 
                     <div class="col-12 col-md-12 mb-3">
                         <label for="nominal">Nominal Transaski</label>
-                        <input type="number" class="form-control" id="nominal"
+                        <input type="text" class="form-control format-currency" id="nominal"
                             placeholder="Masukkan Nominal Transaksi" required="">
                         <div class="invalid-feedback">Masukkan Nominal Transaksi yang valid.</div>
                         <div class="valid-feedback"></div>
@@ -314,7 +314,7 @@
                     <div class="row">
                         <div class="col-12 col-md-12 mb-3">
                             <label for="edit_nominal">Nominal Transaski</label>
-                            <input type="number" class="form-control" id="edit_nominal"
+                            <input type="text" class="form-control format-currency" id="edit_nominal"
                                 placeholder="Masukkan Nominal Transaksi" required="">
                             <div class="invalid-feedback">Masukkan Nominal Transaksi yang valid.</div>
                             <div class="valid-feedback"></div>
@@ -344,8 +344,10 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light close-modal" data-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-primary" id="update">Update</button>
-                    <button type="button" class="btn btn-danger text-white delete" data-toggle="modal"
-                        data-target="#modal-warning">Delete</button>
+                    @if (auth()->user()->role == 'admin')
+                        <button type="button" class="btn btn-danger text-white delete" data-toggle="modal"
+                            data-target="#modal-warning">Delete</button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -380,7 +382,7 @@
             let formData = new FormData();
             formData.append("tanggal", $("#tanggal").val());
             formData.append("kategori", $("#kategori").val());
-            formData.append("nominal", $("#nominal").val());
+            formData.append("nominal", getNumericValue($("#nominal").val()));
             formData.append("deskripsi", $("#deskripsi").val());
             formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
 
@@ -433,7 +435,7 @@
                         $("#id").val(data.id);
                         $("#edit_tanggal").val(data.tanggal);
                         $("#edit_kategori").val(data.kategori_transaksi_id);
-                        $("#edit_nominal").val(data.nominal);
+                        $("#edit_nominal").val(formatRupiah(data.nominal || 0, 'Rp '));
                         $("#edit_deskripsi").val(data.deskripsi);
                         $("#creator").val(data.created_by.name);
                         $("#updator").val(data.updated_by.name);
@@ -472,7 +474,7 @@
             formData.append("id", $("#id").val());
             formData.append("tanggal", $("#edit_tanggal").val());
             formData.append("kategori", $("#edit_kategori").val());
-            formData.append("nominal", $("#edit_nominal").val());
+            formData.append("nominal", getNumericValue($("#edit_nominal").val()));
             formData.append("deskripsi", $("#edit_deskripsi").val());
             formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
 
@@ -583,6 +585,64 @@
                     }
                 });
             }
+        });
+
+        function getNumericValue(rupiahValue) {
+            if (rupiahValue === null || rupiahValue === undefined) return 0;
+
+            let s = String(rupiahValue).trim();
+
+            s = s.replace(/[^0-9\.,]/g, '');
+
+            if (s === '' || s === '-') return 0;
+
+            if (s.indexOf(',') !== -1) {
+                s = s.replace(',', '.');
+            }
+
+            let parts = s.split('.');
+            if (parts.length > 1) {
+                if (parts[parts.length - 1].length <= 2) {
+                    s = parts.slice(0, -1).join('') + '.' + parts[parts.length - 1];
+                } else {
+                    s = s.replace(/\./g, '');
+                }
+            }
+
+            let num = parseFloat(s);
+            return isNaN(num) ? 0 : num;
+        }
+
+        function formatRupiah(angka, prefix = '') {
+            if (angka === null || angka === undefined || angka === '') {
+                return prefix ? prefix + '0' : '0';
+            }
+
+            let num;
+            if (typeof angka === 'number') {
+                num = angka;
+            } else {
+                num = getNumericValue(angka);
+            }
+
+            let formatted;
+            if (Math.abs(Math.round(num) - num) > 0) {
+                formatted = num.toLocaleString('id-ID', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            } else {
+                formatted = num.toLocaleString('id-ID', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                });
+            }
+
+            return prefix ? prefix + formatted : formatted;
+        }
+
+        $(".format-currency").on("keyup", function() {
+            $(this).val(formatRupiah($(this).val(), 'Rp '));
         });
     </script>
 @endsection

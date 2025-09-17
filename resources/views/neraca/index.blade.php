@@ -48,13 +48,13 @@
                                 @foreach ($asetList as $row)
                                     <tr>
                                         <td>{{ $row->nama }}</td>
-                                        <td class="text-end">{{ number_format($row->saldo, 0, ',', '.') }}</td>
+                                        <td class="text-end">Rp. {{ number_format($row->saldo, 0, ',', '.') }}</td>
                                     </tr>
                                 @endforeach
                                 <tr class="table-secondary">
                                     <td><strong>Total Aset Lancar</strong></td>
                                     <td class="text-end">
-                                        <strong>{{ number_format($totalAsetLancar, 0, ',', '.') }}</strong></td>
+                                        <strong>Rp. {{ number_format($totalAsetLancar, 0, ',', '.') }}</strong></td>
                                 </tr>
 
                                 <tr>
@@ -63,18 +63,18 @@
                                 @foreach ($asetTetapList as $row)
                                     <tr>
                                         <td>{{ $row->nama }}</td>
-                                        <td class="text-end">{{ number_format($row->nilai_buku, 0, ',', '.') }}</td>
+                                        <td class="text-end">Rp. {{ number_format($row->nilai_buku, 0, ',', '.') }}</td>
                                     </tr>
                                 @endforeach
                                 <tr class="table-secondary">
                                     <td><strong>Total Aset Tetap</strong></td>
-                                    <td class="text-end"><strong>{{ number_format($totalAsetTetap, 0, ',', '.') }}</strong>
+                                    <td class="text-end"><strong>Rp. {{ number_format($totalAsetTetap, 0, ',', '.') }}</strong>
                                     </td>
                                 </tr>
 
                                 <tr class="table-primary">
                                     <td><strong>Total Aset</strong></td>
-                                    <td class="text-end"><strong>{{ number_format($totalAset, 0, ',', '.') }}</strong></td>
+                                    <td class="text-end"><strong>Rp. {{ number_format($totalAset, 0, ',', '.') }}</strong></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -97,13 +97,13 @@
                                 @foreach ($liabilitasList as $row)
                                     <tr>
                                         <td>{{ $row->nama }}</td>
-                                        <td class="text-end">{{ number_format($row->saldo, 0, ',', '.') }}</td>
+                                        <td class="text-end">Rp. {{ number_format($row->saldo, 0, ',', '.') }}</td>
                                     </tr>
                                 @endforeach
                                 <tr class="table-secondary">
                                     <td><strong>Total Liabilitas</strong></td>
                                     <td class="text-end">
-                                        <strong>{{ number_format($totalLiabilitas, 0, ',', '.') }}</strong></td>
+                                        <strong>Rp. {{ number_format($totalLiabilitas, 0, ',', '.') }}</strong></td>
                                 </tr>
 
                                 <tr>
@@ -112,18 +112,18 @@
                                 @foreach ($ekuitasList as $row)
                                     <tr>
                                         <td>{{ $row->nama }}</td>
-                                        <td class="text-end">{{ number_format($row->saldo, 0, ',', '.') }}</td>
+                                        <td class="text-end">Rp. {{ number_format($row->saldo, 0, ',', '.') }}</td>
                                     </tr>
                                 @endforeach
                                 <tr class="table-secondary">
                                     <td><strong>Total Ekuitas</strong></td>
-                                    <td class="text-end"><strong>{{ number_format($totalEkuitas, 0, ',', '.') }}</strong>
+                                    <td class="text-end"><strong>Rp. {{ number_format($totalEkuitas, 0, ',', '.') }}</strong>
                                     </td>
                                 </tr>
 
                                 <tr class="table-primary">
                                     <td><strong>Total Liabilitas + Ekuitas</strong></td>
-                                    <td class="text-end"><strong>{{ number_format($totalPassiva, 0, ',', '.') }}</strong>
+                                    <td class="text-end"><strong>Rp. {{ number_format($totalPassiva, 0, ',', '.') }}</strong>
                                     </td>
                                 </tr>
                             </tbody>

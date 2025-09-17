@@ -9,19 +9,19 @@
         <tbody>
             <tr>
                 <td><strong>Arus Kas dari Aktivitas Operasi</strong></td>
-                <td class="text-end">{{ number_format($kasDariOperasi,0,',','.') }}</td>
+                <td class="text-end">Rp. {{ number_format($kasDariOperasi,0,',','.') }}</td>
             </tr>
             <tr>
                 <td><strong>Arus Kas dari Aktivitas Investasi</strong></td>
-                <td class="text-end">{{ number_format($kasDariInvestasi,0,',','.') }}</td>
+                <td class="text-end">Rp. {{ number_format($kasDariInvestasi,0,',','.') }}</td>
             </tr>
             <tr>
                 <td><strong>Arus Kas dari Aktivitas Pendanaan</strong></td>
-                <td class="text-end">{{ number_format($kasDariPendanaan,0,',','.') }}</td>
+                <td class="text-end">Rp. {{ number_format($kasDariPendanaan,0,',','.') }}</td>
             </tr>
             <tr class="table-primary">
                 <td><strong>Total Kas Bersih</strong></td>
-                <td class="text-end"><strong>{{ number_format($totalKasBersih,0,',','.') }}</strong></td>
+                <td class="text-end"><strong>Rp. {{ number_format($totalKasBersih,0,',','.') }}</strong></td>
             </tr>
         </tbody>
     </table>

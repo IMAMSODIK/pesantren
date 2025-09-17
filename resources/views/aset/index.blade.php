@@ -52,7 +52,8 @@
                                                     $no = 1;
                                                 @endphp
                                                 @foreach ($asets as $aset)
-                                                    <tr style="cursor: pointer" class="row-data" data-id="{{$aset->id}}">
+                                                    <tr style="cursor: pointer" class="row-data"
+                                                        data-id="{{ $aset->id }}">
                                                         <td>{{ $no++ }}</td>
                                                         <td>{{ $aset->nama }}</td>
                                                     </tr>
@@ -110,22 +111,22 @@
                     </div>
                     <div class="col-12 col-md-12 mb-3">
                         <label for="nilai">Nilai Perolehan</label>
-                        <input type="text" class="form-control" id="nilai" placeholder="Masukkan Nilai Perolehan"
-                            required="">
+                        <input type="text" class="form-control format-currency" id="nilai"
+                            placeholder="Masukkan Nilai Perolehan" required="">
                         <div class="invalid-feedback">Masukkan Niali Perolehan yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="umur_ekonomis">Umur Ekonomis</label>
-                        <input type="text" class="form-control" id="umur_ekonomis" placeholder="Masukkan Umur Ekonomis"
+                        <label for="umur_ekonomis">Umur Ekonomis (Dalam Bulan)</label>
+                        <input type="number" class="form-control" id="umur_ekonomis" placeholder="Masukkan Umur Ekonomis"
                             required="">
                         <div class="invalid-feedback">Masukkan Umur Ekonomis yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
                     <div class="col-12 col-md-12 mb-3">
                         <label for="tanggal_perolehan">Tanggal Perolehan</label>
-                        <input type="date" class="form-control" id="tanggal_perolehan" placeholder="Pilih Tanggal Perolehan"
-                            required="">
+                        <input type="date" class="form-control" id="tanggal_perolehan"
+                            placeholder="Pilih Tanggal Perolehan" required="">
                         <div class="invalid-feedback">Masukkan Tanggal Perolehan yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
@@ -178,22 +179,22 @@
                     </div>
                     <div class="col-12 col-md-12 mb-3">
                         <label for="edit_nilai">Nilai Perolehan</label>
-                        <input type="text" class="form-control" id="edit_nilai" placeholder="Masukkan Nilai Perolehan"
-                            required="">
+                        <input type="text" class="form-control format-currency" id="edit_nilai"
+                            placeholder="Masukkan Nilai Perolehan" required="">
                         <div class="invalid-feedback">Masukkan Niali Perolehan yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="edit_umur_ekonomis">Umur Ekonomis</label>
-                        <input type="text" class="form-control" id="edit_umur_ekonomis" placeholder="Masukkan Umur Ekonomis"
-                            required="">
+                        <label for="edit_umur_ekonomis">Umur Ekonomis (Dalam Bulan)</label>
+                        <input type="number" class="form-control" id="edit_umur_ekonomis"
+                            placeholder="Masukkan Umur Ekonomis" required="">
                         <div class="invalid-feedback">Masukkan Umur Ekonomis yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
                     <div class="col-12 col-md-12 mb-3">
                         <label for="edit_tanggal_perolehan">Tanggal Perolehan</label>
-                        <input type="date" class="form-control" id="edit_tanggal_perolehan" placeholder="Pilih Tanggal Perolehan"
-                            required="">
+                        <input type="date" class="form-control" id="edit_tanggal_perolehan"
+                            placeholder="Pilih Tanggal Perolehan" required="">
                         <div class="invalid-feedback">Masukkan Tanggal Perolehan yang valid.</div>
                         <div class="valid-feedback"></div>
                     </div>
@@ -220,7 +221,9 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light close-modal" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" id="update">Update</button>
-                    <button type="button" class="btn btn-danger delete">Hapus</button>
+                    @if (auth()->user()->role == 'admin')
+                        <button type="button" class="btn btn-danger delete">Hapus</button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -258,11 +261,11 @@
                 type: "POST",
                 data: {
                     nama: $("#nama").val(),
-                    nilai: $("#nilai").val(),
+                    nilai: getNumericValue($("#nilai").val()),
                     umur_ekonomis: $("#umur_ekonomis").val(),
                     tanggal_perolehan: $("#tanggal_perolehan").val(),
                     kategori: $("#kategori").val(),
-                    akun_kredit : $("#akun_kredit").val(),
+                    akun_kredit: $("#akun_kredit").val(),
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
@@ -300,7 +303,7 @@
                     buttonEnabled(button);
                     if (response.status) {
                         $("#edit_nama").val(response.data.nama);
-                        $("#edit_nilai").val(response.data.nilai_perolehan);
+                        $("#edit_nilai").val(formatRupiah(response.data.nilai_perolehan || 0, 'Rp '));
                         $("#edit_umur_ekonomis").val(response.data.umur_ekonomis);
                         $("#edit_tanggal_perolehan").val(response.data.tanggal_perolehan);
                         $("#edit_kategori").val(response.data.kategori_transaksi_id);
@@ -329,7 +332,7 @@
                 type: "POST",
                 data: {
                     nama: $("#edit_nama").val(),
-                    nilai: $("#edit_nilai").val(),
+                    nilai: getNumericValue($("#edit_nilai").val()),
                     umur_ekonomis: $("#edit_umur_ekonomis").val(),
                     tanggal_perolehan: $("#edit_tanggal_perolehan").val(),
                     kategori: $("#edit_kategori").val(),
@@ -395,5 +398,63 @@
         $(".close-modal").on("click", function() {
             closeModal(modal);
         })
+
+        function getNumericValue(rupiahValue) {
+            if (rupiahValue === null || rupiahValue === undefined) return 0;
+
+            let s = String(rupiahValue).trim();
+
+            s = s.replace(/[^0-9\.,]/g, '');
+
+            if (s === '' || s === '-') return 0;
+
+            if (s.indexOf(',') !== -1) {
+                s = s.replace(',', '.');
+            }
+
+            let parts = s.split('.');
+            if (parts.length > 1) {
+                if (parts[parts.length - 1].length <= 2) {
+                    s = parts.slice(0, -1).join('') + '.' + parts[parts.length - 1];
+                } else {
+                    s = s.replace(/\./g, '');
+                }
+            }
+
+            let num = parseFloat(s);
+            return isNaN(num) ? 0 : num;
+        }
+
+        function formatRupiah(angka, prefix = '') {
+            if (angka === null || angka === undefined || angka === '') {
+                return prefix ? prefix + '0' : '0';
+            }
+
+            let num;
+            if (typeof angka === 'number') {
+                num = angka;
+            } else {
+                num = getNumericValue(angka);
+            }
+
+            let formatted;
+            if (Math.abs(Math.round(num) - num) > 0) {
+                formatted = num.toLocaleString('id-ID', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            } else {
+                formatted = num.toLocaleString('id-ID', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                });
+            }
+
+            return prefix ? prefix + formatted : formatted;
+        }
+
+        $(".format-currency").on("keyup", function() {
+            $(this).val(formatRupiah($(this).val(), 'Rp '));
+        });
     </script>
 @endsection

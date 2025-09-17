@@ -14,6 +14,7 @@ use App\Http\Controllers\NeracaController;
 use App\Http\Controllers\NeracaSaldoController;
 use App\Http\Controllers\PenyesuaianController;
 use App\Http\Controllers\PenyusutanController;
+use App\Http\Controllers\PiutangController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RekeningKasController;
 use App\Http\Controllers\TahunAjaranController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\TipeTransaksiController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\TransaksiHarianController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UtangPiutangController;
 use App\Models\Transaksi;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -91,15 +93,22 @@ Route::middleware('auth')->group(function () {
     Route::post('/transaksi-harian/delete', [TransaksiHarianController::class, 'delete']);
     Route::get('/transaksi-harian/search', [TransaksiHarianController::class, 'search']);
 
-    // Route::get('/penyesuaian', [PenyesuaianController::class, 'index'])->name('penyesuaian');
-    // Route::post('/penyesuaian/store', [PenyesuaianController::class, 'store']);
-    // Route::get('/penyesuaian/edit', [PenyesuaianController::class, 'edit']);
-    // Route::post('/penyesuaian/update', [PenyesuaianController::class, 'update']);
-    // Route::post('/penyesuaian/delete', [PenyesuaianController::class, 'delete']);
-    // Route::get('/penyesuaian/search', [PenyesuaianController::class, 'search']);
+    Route::get('/piutang', [PiutangController::class, 'index'])->name('piutang');
+    Route::post('/piutang/store', [PiutangController::class, 'store']);
+    Route::get('/piutang/edit', [PiutangController::class, 'edit']);
+    Route::post('/piutang/update', [PiutangController::class, 'update']);
+    Route::post('/piutang/delete', [PiutangController::class, 'delete']);
+    Route::get('/piutang/search', [PiutangController::class, 'search']);
 
-    Route::get('/penyusutan', [PenyusutanController::class, 'index'])->name('penyusutan');
-    Route::post('/penyusutan/proses', [PenyusutanController::class, 'proses'])->name('penyusutan.proses');
+    Route::get('/penyesuaian', [PenyesuaianController::class, 'index'])->name('penyesuaian');
+    Route::post('/penyesuaian/store', [PenyesuaianController::class, 'store']);
+    Route::get('/penyesuaian/edit', [PenyesuaianController::class, 'edit']);
+    Route::post('/penyesuaian/update', [PenyesuaianController::class, 'update']);
+    Route::post('/penyesuaian/delete', [PenyesuaianController::class, 'delete']);
+    Route::get('/penyesuaian/search', [PenyesuaianController::class, 'search']);
+
+    // Route::get('/penyusutan', [PenyusutanController::class, 'index'])->name('penyusutan');
+    // Route::post('/penyusutan/proses', [PenyusutanController::class, 'proses'])->name('penyusutan.proses');
 
     Route::get('/rekonsiliasi-bank', [MutasiBankController::class, 'index'])->name('rekonsiliasi-bank');
     Route::post('/rekonsiliasi-bank/import', [MutasiBankController::class, 'import'])->name('rekonsiliasi.import');
@@ -134,6 +143,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/laporan/arus-kas', [ArusKasController::class, 'index'])->name('arus_kas');
     Route::get('/laporan/arus-kas/pdf', [ArusKasController::class, 'pdf']);
+
+    Route::get('/laporan/piutang-utang', [UtangPiutangController::class, 'index'])->name('piutang_utang');
+    Route::get('/laporan/piutang-utang/filter', [UtangPiutangController::class, 'filter']);
+    Route::get('/laporan/piutang-utang/pdf', [UtangPiutangController::class, 'exportPdf']);
 
     Route::post('/logout', function () {
         Auth::logout();

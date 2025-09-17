@@ -65,13 +65,13 @@ class PenyesuaianController extends Controller
                 ]);
             }
 
-            $id = KategoriTransaksi::where('kode', '103')->first();
+            $id = KategoriTransaksi::where('kode', $request->jenis)->first();
 
             DB::beginTransaction();
 
             $transaksi = Transaksi::create([
                 'tanggal'   => $request->tanggal,
-                'kategori_transaksi_id' => $id->id, 
+                'kategori_transaksi_id' => $id->id,
                 'nominal'   => $request->nominal,
                 'deskripsi' => $request->deskripsi,
                 'tipe'      => 'penyesuaian',
@@ -170,15 +170,15 @@ class PenyesuaianController extends Controller
             $validator = Validator::make($request->all(), [
                 'id'        => 'required|exists:transaksis,id',
                 'tanggal'   => 'required|date',
-                'kategori'  => 'required|exists:kategori_transaksis,id',
+                'jenis'     => 'required|in:103,104,304,305',
                 'nominal'   => 'required|numeric|min:1',
                 'deskripsi' => 'nullable|string|max:255',
             ], [
                 'required' => 'Kolom :attribute wajib diisi.',
-                'exists'   => 'Kategori transaksi tidak ditemukan.',
+                'in'       => 'Jenis penyesuaian tidak valid.',
+                'exists'   => 'Data tidak ditemukan.',
                 'numeric'  => 'Kolom :attribute harus berupa angka.',
                 'date'     => 'Kolom :attribute harus berupa tanggal yang valid.',
-                'max'      => 'Ukuran file maksimal 5MB.'
             ]);
 
             if ($validator->fails()) {
@@ -189,40 +189,86 @@ class PenyesuaianController extends Controller
                 ]);
             }
 
-            $transaksi = Transaksi::findOrFail($request->id);
+            DB::beginTransaction();
 
+            $transaksi = Transaksi::findOrFail($request->id);
             $transaksi->tanggal     = $request->tanggal;
-            $transaksi->kategori_transaksi_id = $request->kategori;
+            $transaksi->kategori_transaksi_id = KategoriTransaksi::where('kode', $request->jenis)->value('id');
             $transaksi->nominal     = $request->nominal;
             $transaksi->deskripsi   = $request->deskripsi;
             $transaksi->updated_by  = Auth::id();
-
             $transaksi->save();
 
-            JurnalDetail::where('transaksi_id', $transaksi->id)
-                ->update([
-                    'kategori_transaksi_id'   => $transaksi->kategori_transaksi_id,
-                    'nominal'     => $transaksi->nominal,
-                    'updated_at'  => now(),
-                ]);
+            // Hapus jurnal lama
+            JurnalDetail::where('transaksi_id', $transaksi->id)->delete();
+
+            // Tentukan debit & kredit sesuai jenis
+            $debit = null;
+            $kredit = null;
+
+            switch ($request->jenis) {
+                case '103':
+                    $debit  = KategoriTransaksi::where('kode', '103')->first();
+                    $kredit = KategoriTransaksi::where('kode', '501')->first();
+                    break;
+
+                case '104':
+                    $debit  = KategoriTransaksi::where('kode', '104')->first();
+                    $kredit = KategoriTransaksi::where('kode', '502')->first();
+                    break;
+
+                case '304':
+                    $debit  = KategoriTransaksi::where('kode', '602')->first();
+                    $kredit = KategoriTransaksi::where('kode', '304')->first();
+                    break;
+
+                case '305':
+                    $debit  = KategoriTransaksi::where('kode', '604')->first();
+                    $kredit = KategoriTransaksi::where('kode', '305')->first();
+                    break;
+            }
+
+            if (!$debit || !$kredit) {
+                throw new \Exception("Akun penyesuaian tidak ditemukan. Silakan setup kategori transaksi.");
+            }
+
+            // Buat ulang jurnal
+            JurnalDetail::create([
+                'transaksi_id' => $transaksi->id,
+                'kategori_transaksi_id' => $debit->id,
+                'posisi'       => 'debit',
+                'nominal'      => $request->nominal,
+            ]);
+
+            JurnalDetail::create([
+                'transaksi_id' => $transaksi->id,
+                'kategori_transaksi_id' => $kredit->id,
+                'posisi'       => 'kredit',
+                'nominal'      => $request->nominal,
+            ]);
+
+            DB::commit();
 
             return response()->json([
                 'status'  => true,
-                'message' => 'Transaksi & Jurnal detail berhasil diperbarui',
+                'message' => 'Transaksi & Jurnal penyesuaian berhasil diperbarui!',
                 'data'    => $transaksi
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
+            DB::rollBack();
             return response()->json([
                 'status'  => false,
                 'message' => 'Terjadi kesalahan pada database: ' . $e->getMessage(),
             ], 500);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status'  => false,
                 'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage(),
             ], 500);
         }
     }
+
 
     public function delete(Request $request)
     {
@@ -276,6 +322,9 @@ class PenyesuaianController extends Controller
         $query = Transaksi::with(['createdBy', 'kategoriTransaksi']);
 
         $query = Transaksi::with(['createdBy', 'kategoriTransaksi'])
+            ->whereHas('kategoriTransaksi', function ($q) {
+                $q->where('tipe', 'penyesuaian');
+            })
             ->when($request->filled('name'), function ($q) use ($request) {
                 $q->where('deskripsi', 'LIKE', '%' . $request->name . '%');
             })

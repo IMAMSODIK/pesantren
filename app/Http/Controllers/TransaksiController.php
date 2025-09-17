@@ -27,11 +27,10 @@ class TransaksiController extends Controller
 
         try {
             $data['transaksis'] = Transaksi::with(['kategoriTransaksi', 'createdBy'])
-                                        ->where('status', 'active')
-                                        ->where('tipe', 'penerimaan')
-                                        ->get();
-            $data['kategoris'] = KategoriTransaksi::where('kode', 'like', '5%')->get();
-            $data['all_kategories'] = KategoriTransaksi::all();
+                ->where('status', 'active')
+                ->where('tipe', 'penerimaan')
+                ->get();
+            $data['kategoris'] = KategoriTransaksi::where('tipe_transaksi_id', 6)->get();
 
             return view('transaksi.index', $data);
         } catch (QueryException $e) {
@@ -153,7 +152,6 @@ class TransaksiController extends Controller
         }
     }
 
-
     public function update(Request $request)
     {
         try {
@@ -164,23 +162,14 @@ class TransaksiController extends Controller
                 'nominal'   => 'required|numeric|min:1',
                 'deskripsi' => 'nullable|string|max:255',
                 'bukti'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048'
-            ], [
-                'required' => 'Kolom :attribute wajib diisi.',
-                'exists'   => 'Kategori transaksi tidak ditemukan.',
-                'numeric'  => 'Kolom :attribute harus berupa angka.',
-                'date'     => 'Kolom :attribute harus berupa tanggal yang valid.',
-                'file'     => 'Kolom :attribute harus berupa file.',
-                'mimes'    => 'File harus berupa jpg, jpeg, png, atau pdf.',
-                'max'      => 'Ukuran file maksimal 5MB.'
             ]);
 
             if ($validator->fails()) {
                 $errors = implode(' ', $validator->errors()->all());
-                return response()->json([
-                    'status'  => false,
-                    'message' => $errors,
-                ]);
+                return response()->json(['status' => false, 'message' => $errors]);
             }
+
+            DB::beginTransaction();
 
             $transaksi = Transaksi::findOrFail($request->id);
 
@@ -191,8 +180,8 @@ class TransaksiController extends Controller
             $transaksi->updated_by  = Auth::id();
 
             if ($request->hasFile('bukti')) {
-                if ($transaksi->bukti && Storage::exists($transaksi->bukti)) {
-                    Storage::delete($transaksi->bukti);
+                if ($transaksi->bukti && Storage::disk('public')->exists($transaksi->bukti)) {
+                    Storage::disk('public')->delete($transaksi->bukti);
                 }
                 $path = $request->file('bukti')->store('bukti-transaksi', 'public');
                 $transaksi->bukti = $path;
@@ -200,30 +189,45 @@ class TransaksiController extends Controller
 
             $transaksi->save();
 
+            $akunKas = KategoriTransaksi::where('kode', '101')->first();
+            if (!$akunKas) {
+                throw new \Exception("Akun Kas belum tersedia.");
+            }
+
+            // Update Debit Kas
             JurnalDetail::where('transaksi_id', $transaksi->id)
+                ->where('posisi', 'debit')
                 ->update([
-                    'kategori_transaksi_id'   => $transaksi->kategori_transaksi_id,
-                    'nominal'     => $transaksi->nominal,
-                    'updated_at'  => now(),
+                    'kategori_transaksi_id' => $akunKas->id,
+                    'nominal' => $transaksi->nominal,
+                    'updated_at' => now(),
                 ]);
+
+            // Update Kredit Kategori
+            JurnalDetail::where('transaksi_id', $transaksi->id)
+                ->where('posisi', 'kredit')
+                ->update([
+                    'kategori_transaksi_id' => $transaksi->kategori_transaksi_id,
+                    'nominal' => $transaksi->nominal,
+                    'updated_at' => now(),
+                ]);
+
+            DB::commit();
 
             return response()->json([
                 'status'  => true,
                 'message' => 'Transaksi & Jurnal detail berhasil diperbarui',
                 'data'    => $transaksi
             ]);
-        } catch (\Illuminate\Database\QueryException $e) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Terjadi kesalahan pada database: ' . $e->getMessage(),
-            ], 500);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status'  => false,
-                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
             ], 500);
         }
     }
+
 
     public function delete(Request $request)
     {
@@ -279,6 +283,9 @@ class TransaksiController extends Controller
         $query = Transaksi::with(['createdBy', 'kategoriTransaksi']);
 
         $query = Transaksi::with(['createdBy', 'kategoriTransaksi'])
+            ->whereHas('kategoriTransaksi', function ($q) {
+                $q->where('tipe', 'penerimaan');
+            })
             ->when($request->filled('name'), function ($q) use ($request) {
                 $q->where('deskripsi', 'LIKE', '%' . $request->name . '%');
             })

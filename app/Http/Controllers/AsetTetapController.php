@@ -26,7 +26,12 @@ class AsetTetapController extends Controller
 
         try {
             $data['asets'] = AsetTetap::where('status', '1')->get();
-            $data['kategories'] = KategoriTransaksi::with('tipeTransaksi')->where('status', 'active')->get();
+            $data['kategories'] = KategoriTransaksi::where('status', 'active')
+                ->where(function ($q) {
+                    $q->whereIn('tipe_transaksi_id', [1, 2])
+                    ->whereNotIn('kode', ['299']);
+                })
+                ->get();
 
             return view('aset.index', $data);
         } catch (QueryException $e) {

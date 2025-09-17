@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('created_by');
             $table->foreignId('updated_by');
             $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->enum('tipe', ['penerimaan', 'pengeluaran', 'penyesuaian']);
+            $table->enum('tipe', ['penerimaan', 'pengeluaran', 'penyesuaian', 'piutang']);
             $table->timestamps();
         });
     }

@@ -52,3 +52,59 @@ laporan
 
 
 
+formatRupiah(response.alokasi || 0, 'Rp ')
+getNumericValue($("#alokasi").val())
+
+function getNumericValue(rupiahValue) {
+    if (rupiahValue === null || rupiahValue === undefined) return 0;
+
+    // pastikan string
+    let s = String(rupiahValue).trim();
+
+    // hapus semua kecuali digit, koma, minus
+    s = s.replace(/[^0-9\-,]/g, '');
+
+    if (s === '' || s === '-') return 0;
+
+    // hilangkan titik ribuan (jika ada) -> "1.234.567,89" => "1234567,89"
+    s = s.replace(/\./g, '');
+
+    // jika ada koma sebagai desimal, ubah menjadi titik untuk parseFloat
+    if (s.indexOf(',') !== -1) {
+        s = s.replace(',', '.');
+    }
+
+    // parse jadi number
+    let num = parseFloat(s);
+
+    return isNaN(num) ? 0 : num;
+}
+function formatRupiah(angka, prefix = '') {
+    if (angka === null || angka === undefined || angka === '') {
+        return prefix ? prefix + '0' : '0';
+    }
+
+    // Jika diberikan string yang mengandung Rp / . / ,, coba konversi dulu
+    let num;
+    if (typeof angka === 'number') {
+        num = angka;
+    } else {
+        // bersihkan string dan ubah koma decimal ke titik lalu parse
+        num = getNumericValue(angka);
+    }
+
+    // format sesuai lokal Indonesia: titik ribuan, koma desimal
+    // jika num adalah bilangan bulat, toLocaleString akan menampilkan tanpa desimal
+    // jika ada desimal, toLocaleString akan menampilkannya dengan maksimal 2 desimal
+    let formatted;
+    // Tampilkan sampai 2 desimal hanya jika ada nilai desimal non-zero
+    if (Math.abs(Math.round(num) - num) > 0) {
+        // ada desimal -> tampilkan maksimal 2 digit desimal
+        formatted = num.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    } else {
+        // bulat -> tampilkan tanpa desimal
+        formatted = num.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    return prefix ? prefix + formatted : formatted;
+}

@@ -70,11 +70,13 @@
                                                                     style="margin-right: 5px" data-id="{{ $type->id }}">
                                                                     <i class="fa fa-pencil" aria-hidden="true"></i>
                                                                 </button>
-                                                                <button class="btn btn-sm btn-danger text-white delete"
-                                                                    data-toggle="modal" data-target="#modal-warning"
-                                                                    data-id="{{ $type->id }}">
-                                                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                                                </button>
+                                                                @if (auth()->user()->role == 'admin')
+                                                                    <button class="btn btn-sm btn-danger text-white delete"
+                                                                        data-toggle="modal" data-target="#modal-warning"
+                                                                        data-id="{{ $type->id }}">
+                                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                                    </button>
+                                                                @endif
                                                             </div>
                                                         </td>
                                                     </tr>
