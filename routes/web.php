@@ -91,12 +91,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/transaksi-harian/delete', [TransaksiHarianController::class, 'delete']);
     Route::get('/transaksi-harian/search', [TransaksiHarianController::class, 'search']);
 
-    Route::get('/penyesuaian', [PenyesuaianController::class, 'index'])->name('penyesuaian');
-    Route::post('/penyesuaian/store', [PenyesuaianController::class, 'store']);
-    Route::get('/penyesuaian/edit', [PenyesuaianController::class, 'edit']);
-    Route::post('/penyesuaian/update', [PenyesuaianController::class, 'update']);
-    Route::post('/penyesuaian/delete', [PenyesuaianController::class, 'delete']);
-    Route::get('/penyesuaian/search', [PenyesuaianController::class, 'search']);
+    // Route::get('/penyesuaian', [PenyesuaianController::class, 'index'])->name('penyesuaian');
+    // Route::post('/penyesuaian/store', [PenyesuaianController::class, 'store']);
+    // Route::get('/penyesuaian/edit', [PenyesuaianController::class, 'edit']);
+    // Route::post('/penyesuaian/update', [PenyesuaianController::class, 'update']);
+    // Route::post('/penyesuaian/delete', [PenyesuaianController::class, 'delete']);
+    // Route::get('/penyesuaian/search', [PenyesuaianController::class, 'search']);
 
     Route::get('/penyusutan', [PenyusutanController::class, 'index'])->name('penyusutan');
     Route::post('/penyusutan/proses', [PenyusutanController::class, 'proses'])->name('penyusutan.proses');

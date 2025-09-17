@@ -90,12 +90,12 @@
                         </a>
                     </li>
 
-                    <li class="sidebar-menu-item {{ request()->routeIs('penyusutan') ? 'active' : '' }}">
+                    {{-- <li class="sidebar-menu-item {{ request()->routeIs('penyusutan') ? 'active' : '' }}">
                         <a class="sidebar-menu-button" href="/penyusutan">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">trending_down</i>
                             <span class="sidebar-menu-text">Penyusutan</span>
                         </a>
-                    </li>
+                    </li> --}}
 
 
                     {{-- <li class="sidebar-menu-item">
