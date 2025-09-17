@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArusKasController;
 use App\Http\Controllers\AsetTetapController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BukuBesarController;
@@ -7,7 +8,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriTransaksiController;
 use App\Http\Controllers\LabaRugiController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\LaporanPenyusutanController;
 use App\Http\Controllers\MutasiBankController;
+use App\Http\Controllers\NeracaController;
 use App\Http\Controllers\NeracaSaldoController;
 use App\Http\Controllers\PenyesuaianController;
 use App\Http\Controllers\PenyusutanController;
@@ -122,6 +125,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/laba-rugi', [LabaRugiController::class, 'labaRugi'])->name('laba_rugi');
     Route::get('/laporan/laba-rugi/filter', [LabaRugiController::class, 'filterLabaRugi']);
     Route::get('/laporan/laba-rugi/pdf', [LabaRugiController::class, 'exportPdfLabaRugi']);
+
+    Route::get('/laporan/neraca', [NeracaController::class, 'index'])->name('neraca');
+    Route::get('/laporan/neraca/pdf', [NeracaController::class, 'exportPdf']);
+
+    Route::get('/laporan/penyusutan-aset', [LaporanPenyusutanController::class, 'index'])->name('penyusutan_aset');
+    Route::get('/laporan/penyusutan-aset/pdf', [LaporanPenyusutanController::class, 'pdf'])->name('penyusutan.pdf');
+
+    Route::get('/laporan/arus-kas', [ArusKasController::class, 'index'])->name('arus_kas');
+    Route::get('/laporan/arus-kas/pdf', [ArusKasController::class, 'pdf']);
 
     Route::post('/logout', function () {
         Auth::logout();
