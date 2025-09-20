@@ -9,7 +9,7 @@
     <style>
         /* Variabel CSS */
         :root {
-            --primary: #2c3e50;
+            --primary: #ffffffe8;
             --secondary: #3498db;
             --accent: #e74c3c;
             --light: #ecf0f1;
@@ -265,7 +265,7 @@
         .view-profile {
             display: block;
             text-align: center;
-            background-color: var(--primary);
+            background-color: var(--light);
             color: white;
             padding: 0.8rem;
             text-decoration: none;
@@ -421,10 +421,11 @@
         <div class="container header-content">
             <div class="logo">
                 <img src="{{ asset('own_assets/images/logo.png') }}" width="70px" alt="">
+                <img src="{{ asset('own_assets/images/usu.png') }}" width="70px" alt="">
             </div>
             <nav>
                 <ul>
-                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/dashboard" style="color: black">Dashboard</a></li>
                 </ul>
             </nav>
         </div>
