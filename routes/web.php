@@ -93,12 +93,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/transaksi-harian/delete', [TransaksiHarianController::class, 'delete']);
     Route::get('/transaksi-harian/search', [TransaksiHarianController::class, 'search']);
 
-    Route::get('/piutang', [PiutangController::class, 'index'])->name('piutang');
-    Route::post('/piutang/store', [PiutangController::class, 'store']);
-    Route::get('/piutang/edit', [PiutangController::class, 'edit']);
-    Route::post('/piutang/update', [PiutangController::class, 'update']);
-    Route::post('/piutang/delete', [PiutangController::class, 'delete']);
-    Route::get('/piutang/search', [PiutangController::class, 'search']);
+    Route::get('/utang-piutang', [PiutangController::class, 'index'])->name('piutang');
+    Route::post('/utang-piutang/store', [PiutangController::class, 'store']);
+    Route::get('/utang-piutang/edit', [PiutangController::class, 'edit']);
+    Route::post('/utang-piutang/update', [PiutangController::class, 'update']);
+    Route::post('/utang-piutang/delete', [PiutangController::class, 'delete']);
+    Route::get('/utang-piutang/search', [PiutangController::class, 'search']);
 
     Route::get('/penyesuaian', [PenyesuaianController::class, 'index'])->name('penyesuaian');
     Route::post('/penyesuaian/store', [PenyesuaianController::class, 'store']);
@@ -131,9 +131,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/neraca-saldo/filter', [NeracaSaldoController::class, 'filterNeracaSaldo']);
     Route::get('/laporan/neraca-saldo/pdf', [NeracaSaldoController::class, 'exportNeracaSaldoPDF']);
 
-    Route::get('/laporan/laba-rugi', [LabaRugiController::class, 'labaRugi'])->name('laba_rugi');
-    Route::get('/laporan/laba-rugi/filter', [LabaRugiController::class, 'filterLabaRugi']);
-    Route::get('/laporan/laba-rugi/pdf', [LabaRugiController::class, 'exportPdfLabaRugi']);
+    Route::get('/laporan/laporan-perubahan-aset-neto', [LabaRugiController::class, 'labaRugi'])->name('laba_rugi');
+    Route::get('/laporan/laporan-perubahan-aset-neto/filter', [LabaRugiController::class, 'filterLabaRugi']);
+    Route::get('/laporan/laporan-perubahan-aset-neto/pdf', [LabaRugiController::class, 'exportPdfLabaRugi']);
+    Route::get('/laporan/laporan-perubahan-aset-neto/csv', [LabaRugiController::class, 'exportCsvLabaRugi'])->name('laba-rugi.csv');
 
     Route::get('/laporan/neraca', [NeracaController::class, 'index'])->name('neraca');
     Route::get('/laporan/neraca/pdf', [NeracaController::class, 'exportPdf']);

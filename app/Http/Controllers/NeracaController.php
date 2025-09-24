@@ -18,36 +18,42 @@ class NeracaController extends Controller
         $tahun = $request->tahun ?? date('Y');
         $pageTitle = "Laporan Neraca";
 
-        // ========== ASET LANCAR (Kode 1xx dari jurnal) ==========
-        $asetList = JurnalDetail::selectRaw('kategori_transaksis.kode, kategori_transaksis.name as nama, 
-                SUM(CASE WHEN jurnal_details.posisi = "debit" 
-                         THEN jurnal_details.nominal 
-                         ELSE -jurnal_details.nominal END) as saldo')
-            ->join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
-            ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
-            ->whereYear('transaksis.tanggal', $tahun)
-            ->whereMonth('transaksis.tanggal', '<=', $bulan)
-            ->where('kategori_transaksis.kode', 'like', '1%')
-            ->groupBy('kategori_transaksis.kode', 'kategori_transaksis.name')
-            ->get();
+        // Fungsi helper untuk menghitung saldo kumulatif sampai bulan tertentu
+        $getSaldo = function ($kodePrefix, $posisi = 'debit') use ($bulan, $tahun) {
+            return JurnalDetail::selectRaw('kategori_transaksis.kode, kategori_transaksis.name as nama, 
+                SUM(CASE WHEN jurnal_details.posisi = ? THEN jurnal_details.nominal ELSE -jurnal_details.nominal END) as saldo', [$posisi])
+                ->join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
+                ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                ->where(function ($q) use ($tahun, $bulan) {
+                    $q->whereYear('transaksis.tanggal', '<', $tahun)
+                        ->orWhere(function ($q2) use ($tahun, $bulan) {
+                            $q2->whereYear('transaksis.tanggal', '=', $tahun)
+                                ->whereMonth('transaksis.tanggal', '<=', $bulan);
+                        });
+                })
+                ->where('kategori_transaksis.kode', 'like', $kodePrefix . '%')
+                ->groupBy('kategori_transaksis.kode', 'kategori_transaksis.name')
+                ->get();
+        };
 
+        // ========== ASET LANCAR (1xx) ==========
+        $asetList = $getSaldo('1', 'debit');
         $totalAsetLancar = $asetList->sum('saldo');
 
-        // ========== ASET TETAP (dari tabel aset_tetaps) ==========
+        // ========== ASET TETAP ==========
         $asetTetapList = DB::table('aset_tetaps')
             ->select('nama', 'nilai_perolehan', 'nilai_sisa', 'umur_ekonomis', 'tanggal_perolehan')
             ->whereYear('tanggal_perolehan', '<=', $tahun)
             ->get()
             ->map(function ($aset) use ($bulan, $tahun) {
                 $umur = max(1, $aset->umur_ekonomis);
-
                 $penyusutanPerBulan = ($aset->nilai_perolehan - ($aset->nilai_sisa ?? 0)) / $umur;
 
                 $bulanPerolehan = Carbon::parse($aset->tanggal_perolehan)->format('m');
                 $tahunPerolehan = Carbon::parse($aset->tanggal_perolehan)->format('Y');
 
                 $lamaPemakaian = (($tahun - $tahunPerolehan) * 12) + ($bulan - $bulanPerolehan);
-                if ($lamaPemakaian < 0) $lamaPemakaian = 0;
+                $lamaPemakaian = max(0, $lamaPemakaian);
 
                 $akumulasi = min(
                     $aset->nilai_perolehan - ($aset->nilai_sisa ?? 0),
@@ -59,43 +65,64 @@ class NeracaController extends Controller
 
                 return $aset;
             });
-
         $totalAsetTetap = $asetTetapList->sum('nilai_buku');
 
-        // ========== TOTAL ASET ==========
         $totalAset = $totalAsetLancar + $totalAsetTetap;
 
-        // ========== LIABILITAS ==========
-        $liabilitasList = JurnalDetail::selectRaw('kategori_transaksis.kode, kategori_transaksis.name as nama, 
-                SUM(CASE WHEN jurnal_details.posisi = "kredit" 
-                         THEN jurnal_details.nominal 
-                         ELSE -jurnal_details.nominal END) as saldo')
-            ->join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
-            ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
-            ->whereYear('transaksis.tanggal', $tahun)
-            ->whereMonth('transaksis.tanggal', '<=', $bulan)
-            ->where('kategori_transaksis.kode', 'like', '2%')
-            ->groupBy('kategori_transaksis.kode', 'kategori_transaksis.name')
-            ->get();
-
+        // ========== LIABILITAS (3xx) ==========
+        $liabilitasList = $getSaldo('3', 'kredit');
         $totalLiabilitas = $liabilitasList->sum('saldo');
 
         // ========== EKUITAS ==========
         $ekuitasList = JurnalDetail::selectRaw('kategori_transaksis.kode, kategori_transaksis.name as nama, 
-                SUM(CASE WHEN jurnal_details.posisi = "kredit" 
-                         THEN jurnal_details.nominal 
-                         ELSE -jurnal_details.nominal END) as saldo')
+        SUM(CASE WHEN jurnal_details.posisi="kredit" THEN jurnal_details.nominal ELSE -jurnal_details.nominal END) as saldo')
             ->join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
             ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
-            ->whereYear('transaksis.tanggal', $tahun)
-            ->whereMonth('transaksis.tanggal', '<=', $bulan)
-            ->where('kategori_transaksis.kode', 'like', '3%')
+            ->where(function ($q) use ($tahun, $bulan) {
+                $q->whereYear('transaksis.tanggal', '<', $tahun)
+                    ->orWhere(function ($q2) use ($tahun, $bulan) {
+                        $q2->whereYear('transaksis.tanggal', '=', $tahun)
+                            ->whereMonth('transaksis.tanggal', '<=', $bulan);
+                    });
+            })
+            ->whereIn('kategori_transaksis.kode', ['401', '402', '403']) // Modal & Dana Bersih
             ->groupBy('kategori_transaksis.kode', 'kategori_transaksis.name')
             ->get();
 
-        $totalEkuitas = $ekuitasList->sum('saldo');
+        // Laba/Rugi
+        $pendapatan = JurnalDetail::join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
+            ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+            ->where(function ($q) use ($tahun, $bulan) {
+                $q->whereYear('transaksis.tanggal', '<', $tahun)
+                    ->orWhere(function ($q2) use ($tahun, $bulan) {
+                        $q2->whereYear('transaksis.tanggal', '=', $tahun)
+                            ->whereMonth('transaksis.tanggal', '<=', $bulan);
+                    });
+            })
+            ->whereIn('kategori_transaksis.kode', ['501', '502', '505', '506'])
+            ->sum(DB::raw('CASE WHEN jurnal_details.posisi="kredit" THEN jurnal_details.nominal ELSE -jurnal_details.nominal END'));
 
-        // ========== TOTAL PASSIVA ==========
+        $beban = JurnalDetail::join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
+            ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+            ->where(function ($q) use ($tahun, $bulan) {
+                $q->whereYear('transaksis.tanggal', '<', $tahun)
+                    ->orWhere(function ($q2) use ($tahun, $bulan) {
+                        $q2->whereYear('transaksis.tanggal', '=', $tahun)
+                            ->whereMonth('transaksis.tanggal', '<=', $bulan);
+                    });
+            })
+            ->whereIn('kategori_transaksis.kode', ['601', '602', '603', '604', '605', '606', '607', '608', '609', '610', '611', '612', '614', '613', '615'])
+            ->sum(DB::raw('CASE WHEN jurnal_details.posisi="debit" THEN jurnal_details.nominal ELSE -jurnal_details.nominal END'));
+
+        $labaRugi = $pendapatan - $beban;
+
+        $ekuitasList->push((object)[
+            'kode' => 'LR',
+            'nama' => 'Laba / Rugi',
+            'saldo' => $labaRugi
+        ]);
+
+        $totalEkuitas = $ekuitasList->sum('saldo');
         $totalPassiva = $totalLiabilitas + $totalEkuitas;
 
         return view('neraca.index', compact(
@@ -114,6 +141,7 @@ class NeracaController extends Controller
             'totalPassiva'
         ));
     }
+
 
     public function exportPdf()
     {

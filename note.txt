@@ -55,3 +55,32 @@ laporan
 
 getNumericValue($("#alokasi").val())
 
+
+laaba rugi diubah menjadi laporan perubahan aset neto (done)
+pendapatan dan beban dibagi 2 (pendapatan terikat dan tidak terikat), sama dengan beban (done)
+pada bagian laba rugi ada 4 table (done)
+
+ada typo di penerimaan dana (done)
+
+penerimaan dana diambil dari akun dengan kepala 6 dan semua piutang (done)
+transaksi harian tambah hutang  (done)
+menu piutang ganti jadi hutang/piutang dan tambahkan kategori transaksi utang (done)
+
+
+hasil laba/rugi tetap masuk ke ekuitas
+jadi diekuitas ada kenaikan dan penurunan terikat
+jadi diekuitas ada kenaikan dan penurunan tidak terikat
+aset = liabilitas + ekuitas
+neraca ikut dari data bulan sebelumnya (mengambil dari kas)
+ekuitas ganti jadi aset neto
+penyesuaian jika utang jika sudah dilunasi belum ada
+arus kas ikut dari data bulan sebelumnya (mengambil dari kas)
+
+laporan range tanggal
+import dengan csv
+
+
+catatan : 
+gaji, lembur karyawan masuk ke beban terikat karena mengambil dari kas (di program tidak bisa masukkan kedua table (terikat dan tidak terikat))
+Kalau gaji & lembur karyawan harian/operasional pesantren → masuk ke Beban Tidak Terikat (tipe_transaksi_id = 8).
+Kalau gaji & lembur dibiayai dari dana hibah/proyek khusus → masuk ke Beban Terikat (tipe_transaksi_id = 9).

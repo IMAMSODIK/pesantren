@@ -79,9 +79,9 @@
                     </li>
 
                     <li class="sidebar-menu-item {{ request()->routeIs('piutang') ? 'active' : '' }}">
-                        <a class="sidebar-menu-button" href="/piutang">
+                        <a class="sidebar-menu-button" href="/utang-piutang">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">swap_horiz</i>
-                            <span class="sidebar-menu-text">Piutang</span>
+                            <span class="sidebar-menu-text">Utang/Piutang</span>
                         </a>
                     </li>
 
@@ -140,9 +140,9 @@
                     </li>
 
                     <li class="sidebar-menu-item {{ request()->routeIs('laba_rugi') ? 'active' : '' }}">
-                        <a class="sidebar-menu-button" href="/laporan/laba-rugi">
+                        <a class="sidebar-menu-button" href="/laporan/laporan-perubahan-aset-neto">
                             <i class="sidebar-menu-icon sidebar-menu-icon--left material-icons">dns</i>
-                            <span class="sidebar-menu-text">Laba Rugi</span>
+                            <span class="sidebar-menu-text">Perubahan Aset Neto</span>
                         </a>
                     </li>
 

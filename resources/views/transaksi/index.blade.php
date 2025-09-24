@@ -215,7 +215,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="tanggal">Tanggal Transaski</label>
+                        <label for="tanggal">Tanggal Transaksi</label>
                         <input type="date" class="form-control" id="tanggal"
                             placeholder="Masukkan Tanggal Transaksi" required="">
                         <div class="invalid-feedback">Masukkan Tanggal Transaksi yang valid.</div>
@@ -223,7 +223,7 @@
                     </div>
 
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="kategori">Kategori Transaski</label>
+                        <label for="kategori">Kategori Transaksi</label>
                         <select class="form-control" id="kategori" required>
                             @foreach ($kategoris as $kat)
                                 <option value="{{ $kat->id }}">{{ $kat->name }}</option>
@@ -234,7 +234,7 @@
                     </div>
 
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="nominal">Nominal Transaski</label>
+                        <label for="nominal">Nominal Transaksi</label>
                         <input type="text" class="form-control format-currency" id="nominal"
                             placeholder="Masukkan Nominal Transaksi" required="">
                         <div class="invalid-feedback">Masukkan Nominal Transaksi yang valid.</div>
@@ -242,7 +242,7 @@
                     </div>
 
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="deskripsi">Deskripsi Transaski</label>
+                        <label for="deskripsi">Deskripsi Transaksi</label>
                         <textarea class="form-control" id="deskripsi" placeholder="Masukkan Deskripsi Transaksi" required=""
                             cols="5" rows="2"></textarea>
                         <div class="invalid-feedback">Masukkan Deskripsi Transaksi yang valid.</div>
@@ -250,7 +250,7 @@
                     </div>
 
                     <div class="col-12 col-md-12 mb-3">
-                        <label for="bukti">Bukti Transaski</label>
+                        <label for="bukti">Bukti Transaksi</label>
                         <input type="file" class="form-control" id="bukti" placeholder="Masukkan Bukti Transaksi"
                             required="" accept=".jpg,.jpeg,.png,.pdf">
                         <div class="invalid-feedback">Masukkan Bukti Transaksi yang valid.</div>
@@ -290,7 +290,7 @@
 
                     <div class="row">
                         <div class="col-12 col-md-12 mb-3">
-                            <label for="edit_tanggal">Tanggal Transaski</label>
+                            <label for="edit_tanggal">Tanggal Transaksi</label>
                             <input type="date" class="form-control" id="edit_tanggal"
                                 placeholder="Masukkan Tanggal Transaksi" required="">
                             <div class="invalid-feedback">Masukkan Tanggal Transaksi yang valid.</div>
@@ -300,7 +300,7 @@
 
                     <div class="row">
                         <div class="col-12 col-md-12 mb-3">
-                            <label for="edit_kategori">Kategori Transaski</label>
+                            <label for="edit_kategori">Kategori Transaksi</label>
                             <select class="form-control" id="edit_kategori" required>
                                 @foreach ($kategoris as $kat)
                                     <option value="{{ $kat->id }}">{{ $kat->name }}</option>
@@ -313,7 +313,7 @@
 
                     <div class="row">
                         <div class="col-12 col-md-12 mb-3">
-                            <label for="edit_nominal">Nominal Transaski</label>
+                            <label for="edit_nominal">Nominal Transaksi</label>
                             <input type="text" class="form-control format-currency" id="edit_nominal"
                                 placeholder="Masukkan Nominal Transaksi" required="">
                             <div class="invalid-feedback">Masukkan Nominal Transaksi yang valid.</div>
@@ -323,7 +323,7 @@
 
                     <div class="row">
                         <div class="col-12 col-md-12 mb-3">
-                            <label for="edit_deskripsi">Deskripsi Transaski</label>
+                            <label for="edit_deskripsi">Deskripsi Transaksi</label>
                             <textarea class="form-control" id="edit_deskripsi" placeholder="Masukkan Deskripsi Transaksi" required=""
                                 cols="5" rows="2"></textarea>
                             <div class="invalid-feedback">Masukkan Deskripsi Transaksi yang valid.</div>
@@ -333,7 +333,7 @@
 
                     <div class="row">
                         <div class="col-12 col-md-12 mb-3">
-                            <label for="edit_bukti">Bukti Transaski</label>
+                            <label for="edit_bukti">Bukti Transaksi</label>
                             <input type="file" class="form-control" id="edit_bukti"
                                 placeholder="Masukkan Bukti Transaksi" required="" accept=".jpg,.jpeg,.png,.pdf">
                             <div class="invalid-feedback">Masukkan Bukti Transaksi yang valid.</div>

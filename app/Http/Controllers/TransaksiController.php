@@ -26,11 +26,21 @@ class TransaksiController extends Controller
         ];
 
         try {
+            // Ambil transaksi penerimaan
             $data['transaksis'] = Transaksi::with(['kategoriTransaksi', 'createdBy'])
                 ->where('status', 'active')
                 ->where('tipe', 'penerimaan')
+                ->whereHas('kategoriTransaksi', function ($q) {
+                    $q->whereIn('tipe_transaksi_id', [6, 7]) // pendapatan
+                        ->orWhereIn('kode', ['103', '104', '106', '107']); // piutang
+                })
                 ->get();
-            $data['kategoris'] = KategoriTransaksi::where('tipe_transaksi_id', 6)->get();
+
+            // Ambil kategori untuk dropdown: hanya piutang dan pendapatan
+            $data['kategoris'] = KategoriTransaksi::where(function ($q) {
+                $q->whereIn('tipe_transaksi_id', [6, 7]) // pendapatan
+                    ->orWhereIn('kode', ['103', '104', '106', '107']); // piutang
+            })->get();
 
             return view('transaksi.index', $data);
         } catch (QueryException $e) {
@@ -43,6 +53,7 @@ class TransaksiController extends Controller
             ]);
         }
     }
+
 
     public function store(Request $request)
     {

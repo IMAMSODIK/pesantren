@@ -35,7 +35,9 @@ class PiutangController extends Controller
                 '104', // Piutang Uang Pembangunan
                 '106', // Piutang Guru dan Karyawan
                 '107', // Piutang Lainnya
-            ])->get();
+            ])
+            ->orWhereIn('kode', ['301','302','303','304','305'])
+            ->get();
 
             return view('piutang.index', $data);
         } catch (QueryException $e) {

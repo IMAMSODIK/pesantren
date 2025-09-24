@@ -27,7 +27,7 @@ class TransaksiHarianController extends Controller
                 ->where('status', 'active')
                 ->where('tipe', 'pengeluaran')
                 ->get();
-            $data['kategoris'] = KategoriTransaksi::where('kode', 'like', '6%')->get();
+            $data['kategoris'] = KategoriTransaksi::where('kode', 'like', '6%')->orWhereIn('kode', ['301','302','303','304','305'])->get();
 
             return view('transaksi_harian.index', $data);
         } catch (QueryException $e) {

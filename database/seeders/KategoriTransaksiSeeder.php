@@ -126,7 +126,7 @@ class KategoriTransaksiSeeder extends Seeder
         KategoriTransaksi::create([
             'tipe_transaksi_id' => $l->id,
             'kode' => '304',
-            'name' => 'Utang Gaji, Lembuar Karyawan',
+            'name' => 'Utang Gaji, Lembur Karyawan',
         ]);
 
         KategoriTransaksi::create([
@@ -297,14 +297,20 @@ class KategoriTransaksiSeeder extends Seeder
             'name' => 'Kegiatan Japfa Foundation',
         ]);
 
-        $bttbt = TipeTransaksi::create([
-            'name' => 'Beban Tidak Terikat dan Beban Terikat'
-        ]);
-
         KategoriTransaksi::create([
-            'tipe_transaksi_id' => $bttbt->id,
+            'tipe_transaksi_id' => $btt->id,
             'kode' => '602',
             'name' => 'Gaji, Lembur Karyawan',
         ]);
+
+        // $bttbt = TipeTransaksi::create([
+        //     'name' => 'Beban Tidak Terikat dan Beban Terikat'
+        // ]);
+
+        // KategoriTransaksi::create([
+        //     'tipe_transaksi_id' => $bttbt->id,
+        //     'kode' => '602',
+        //     'name' => 'Gaji, Lembur Karyawan',
+        // ]);
     }
 }
