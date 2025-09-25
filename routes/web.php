@@ -136,8 +136,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/laporan-perubahan-aset-neto/pdf', [LabaRugiController::class, 'exportPdfLabaRugi']);
     Route::get('/laporan/laporan-perubahan-aset-neto/csv', [LabaRugiController::class, 'exportCsvLabaRugi'])->name('laba-rugi.csv');
 
-    Route::get('/laporan/neraca', [NeracaController::class, 'index'])->name('neraca');
+    Route::get('/laporan/neraca', [NeracaController::class, 'neraca'])->name('neraca');
     Route::get('/laporan/neraca/pdf', [NeracaController::class, 'exportPdf']);
+    Route::get('/laporan/neraca/csv', [NeracaController::class, 'exportCsv']);
 
     Route::get('/laporan/penyusutan-aset', [LaporanPenyusutanController::class, 'index'])->name('penyusutan_aset');
     Route::get('/laporan/penyusutan-aset/pdf', [LaporanPenyusutanController::class, 'pdf'])->name('penyusutan.pdf');

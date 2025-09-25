@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\AsetTetap;
 use App\Models\JurnalDetail;
+use App\Models\KategoriTransaksi;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -12,231 +13,381 @@ use Illuminate\Support\Facades\DB;
 
 class NeracaController extends Controller
 {
-    public function index(Request $request)
+    public function neraca(Request $request)
     {
-        $bulan = $request->bulan ?? date('m');
-        $tahun = $request->tahun ?? date('Y');
-        $pageTitle = "Laporan Neraca";
+        $start_date = $request->start_date ?? date('Y-m-01');
+        $end_date   = $request->end_date ?? date('Y-m-d');
+        $pageTitle  = "Neraca (Aset Neto)";
 
-        // Fungsi helper untuk menghitung saldo kumulatif sampai bulan tertentu
-        $getSaldo = function ($kodePrefix, $posisi = 'debit') use ($bulan, $tahun) {
-            return JurnalDetail::selectRaw('kategori_transaksis.kode, kategori_transaksis.name as nama, 
-                SUM(CASE WHEN jurnal_details.posisi = ? THEN jurnal_details.nominal ELSE -jurnal_details.nominal END) as saldo', [$posisi])
-                ->join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
-                ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
-                ->where(function ($q) use ($tahun, $bulan) {
-                    $q->whereYear('transaksis.tanggal', '<', $tahun)
-                        ->orWhere(function ($q2) use ($tahun, $bulan) {
-                            $q2->whereYear('transaksis.tanggal', '=', $tahun)
-                                ->whereMonth('transaksis.tanggal', '<=', $bulan);
-                        });
-                })
-                ->where('kategori_transaksis.kode', 'like', $kodePrefix . '%')
-                ->groupBy('kategori_transaksis.kode', 'kategori_transaksis.name')
-                ->get();
-        };
+        try {
+            // --- ASET (Kas + Piutang) ---
+            $akunAset = KategoriTransaksi::whereIn('kode', ['101', '103', '104', '106', '107'])->get();
+            $aset = [];
+            foreach ($akunAset as $kategori) {
+                $debit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'debit')
+                    ->sum('jurnal_details.nominal');
 
-        // ========== ASET LANCAR (1xx) ==========
-        $asetList = $getSaldo('1', 'debit');
-        $totalAsetLancar = $asetList->sum('saldo');
+                $kredit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'kredit')
+                    ->sum('jurnal_details.nominal');
 
-        // ========== ASET TETAP ==========
-        $asetTetapList = DB::table('aset_tetaps')
-            ->select('nama', 'nilai_perolehan', 'nilai_sisa', 'umur_ekonomis', 'tanggal_perolehan')
-            ->whereYear('tanggal_perolehan', '<=', $tahun)
-            ->get()
-            ->map(function ($aset) use ($bulan, $tahun) {
-                $umur = max(1, $aset->umur_ekonomis);
-                $penyusutanPerBulan = ($aset->nilai_perolehan - ($aset->nilai_sisa ?? 0)) / $umur;
+                $aset[] = [
+                    'kode' => $kategori->kode,
+                    'nama' => $kategori->name,
+                    'saldo' => $debit - $kredit
+                ];
+            }
 
-                $bulanPerolehan = Carbon::parse($aset->tanggal_perolehan)->format('m');
-                $tahunPerolehan = Carbon::parse($aset->tanggal_perolehan)->format('Y');
+            // --- LIABILITAS (Utang) ---
+            $akunLiabilitas = KategoriTransaksi::whereIn('kode', ['301', '302', '303', '304', '305'])->get();
+            $liabilitas = [];
+            foreach ($akunLiabilitas as $kategori) {
+                $debit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'debit')
+                    ->sum('jurnal_details.nominal');
 
-                $lamaPemakaian = (($tahun - $tahunPerolehan) * 12) + ($bulan - $bulanPerolehan);
-                $lamaPemakaian = max(0, $lamaPemakaian);
+                $kredit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'kredit')
+                    ->sum('jurnal_details.nominal');
 
-                $akumulasi = min(
-                    $aset->nilai_perolehan - ($aset->nilai_sisa ?? 0),
-                    $lamaPemakaian * $penyusutanPerBulan
-                );
+                $liabilitas[] = [
+                    'kode' => $kategori->kode,
+                    'nama' => $kategori->name,
+                    'saldo' => $kredit - $debit
+                ];
+            }
 
-                $aset->akumulasi_penyusutan = $akumulasi;
-                $aset->nilai_buku = $aset->nilai_perolehan - $akumulasi;
+            // --- MODAL (kategori_transaksi_id = 403, kumulatif) ---
+            $modal = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                ->where('jurnal_details.kategori_transaksi_id', 403)
+                ->where('transaksis.status', 'active')
+                ->sum(DB::raw("CASE WHEN jurnal_details.posisi='kredit' THEN jurnal_details.nominal ELSE -jurnal_details.nominal END"));
 
-                return $aset;
-            });
-        $totalAsetTetap = $asetTetapList->sum('nilai_buku');
+            $liabilitas[] = [
+                'kode' => '403',
+                'nama' => 'Modal',
+                'saldo' => $modal
+            ];
 
-        $totalAset = $totalAsetLancar + $totalAsetTetap;
+            // --- ASET NETO (Laba/Rugi) ---
+            $asetNeto = [];
+            $tipeAsetNeto = [
+                ['id' => 6, 'nama' => 'Tidak Terikat'],
+                ['id' => 7, 'nama' => 'Terikat']
+            ];
 
-        // ========== LIABILITAS (3xx) ==========
-        $liabilitasList = $getSaldo('3', 'kredit');
-        $totalLiabilitas = $liabilitasList->sum('saldo');
+            foreach ($tipeAsetNeto as $tipe) {
+                $pendapatan = JurnalDetail::join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
+                    ->join('tipe_transaksis', 'kategori_transaksis.tipe_transaksi_id', '=', 'tipe_transaksis.id')
+                    ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('tipe_transaksis.id', $tipe['id'])
+                    ->where('jurnal_details.posisi', 'kredit')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->sum('jurnal_details.nominal');
 
-        // ========== EKUITAS ==========
-        $ekuitasList = JurnalDetail::selectRaw('kategori_transaksis.kode, kategori_transaksis.name as nama, 
-        SUM(CASE WHEN jurnal_details.posisi="kredit" THEN jurnal_details.nominal ELSE -jurnal_details.nominal END) as saldo')
-            ->join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
-            ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
-            ->where(function ($q) use ($tahun, $bulan) {
-                $q->whereYear('transaksis.tanggal', '<', $tahun)
-                    ->orWhere(function ($q2) use ($tahun, $bulan) {
-                        $q2->whereYear('transaksis.tanggal', '=', $tahun)
-                            ->whereMonth('transaksis.tanggal', '<=', $bulan);
-                    });
-            })
-            ->whereIn('kategori_transaksis.kode', ['401', '402', '403']) // Modal & Dana Bersih
-            ->groupBy('kategori_transaksis.kode', 'kategori_transaksis.name')
-            ->get();
+                $bebanId = $tipe['id'] + 2; // Asumsi: Beban Tidak Terikat = 8, Terikat = 9
+                $beban = JurnalDetail::join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
+                    ->join('tipe_transaksis', 'kategori_transaksis.tipe_transaksi_id', '=', 'tipe_transaksis.id')
+                    ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('tipe_transaksis.id', $bebanId)
+                    ->where('jurnal_details.posisi', 'debit')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->sum('jurnal_details.nominal');
 
-        // Laba/Rugi
-        $pendapatan = JurnalDetail::join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
-            ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
-            ->where(function ($q) use ($tahun, $bulan) {
-                $q->whereYear('transaksis.tanggal', '<', $tahun)
-                    ->orWhere(function ($q2) use ($tahun, $bulan) {
-                        $q2->whereYear('transaksis.tanggal', '=', $tahun)
-                            ->whereMonth('transaksis.tanggal', '<=', $bulan);
-                    });
-            })
-            ->whereIn('kategori_transaksis.kode', ['501', '502', '505', '506'])
-            ->sum(DB::raw('CASE WHEN jurnal_details.posisi="kredit" THEN jurnal_details.nominal ELSE -jurnal_details.nominal END'));
+                $asetNeto[] = [
+                    'nama' => $tipe['nama'],
+                    'saldo' => $pendapatan - $beban
+                ];
+            }
 
-        $beban = JurnalDetail::join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
-            ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
-            ->where(function ($q) use ($tahun, $bulan) {
-                $q->whereYear('transaksis.tanggal', '<', $tahun)
-                    ->orWhere(function ($q2) use ($tahun, $bulan) {
-                        $q2->whereYear('transaksis.tanggal', '=', $tahun)
-                            ->whereMonth('transaksis.tanggal', '<=', $bulan);
-                    });
-            })
-            ->whereIn('kategori_transaksis.kode', ['601', '602', '603', '604', '605', '606', '607', '608', '609', '610', '611', '612', '614', '613', '615'])
-            ->sum(DB::raw('CASE WHEN jurnal_details.posisi="debit" THEN jurnal_details.nominal ELSE -jurnal_details.nominal END'));
+            $totalAsetNeto = array_sum(array_column($asetNeto, 'saldo'));
 
-        $labaRugi = $pendapatan - $beban;
-
-        $ekuitasList->push((object)[
-            'kode' => 'LR',
-            'nama' => 'Laba / Rugi',
-            'saldo' => $labaRugi
-        ]);
-
-        $totalEkuitas = $ekuitasList->sum('saldo');
-        $totalPassiva = $totalLiabilitas + $totalEkuitas;
-
-        return view('neraca.index', compact(
-            'bulan',
-            'tahun',
-            'pageTitle',
-            'asetList',
-            'asetTetapList',
-            'liabilitasList',
-            'ekuitasList',
-            'totalAsetLancar',
-            'totalAsetTetap',
-            'totalAset',
-            'totalLiabilitas',
-            'totalEkuitas',
-            'totalPassiva'
-        ));
+            return view('neraca.index', compact(
+                'pageTitle',
+                'start_date',
+                'end_date',
+                'aset',
+                'liabilitas',
+                'asetNeto',
+                'totalAsetNeto'
+            ));
+        } catch (\Exception $e) {
+            return response()->view('errors.500', [
+                'error' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ]);
+        }
     }
 
-
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
-        $bulan = date('m');
-        $tahun = date('Y');
-        $pageTitle = "Laporan Neraca {$bulan}/{$tahun}";
+        $start_date = $request->start_date ?? date('Y-m-01');
+        $end_date   = $request->end_date ?? date('Y-m-d');
 
-        // ========== ASET LANCAR ==========
-        $asetList = JurnalDetail::selectRaw('kategori_transaksis.kode, kategori_transaksis.name as nama, 
-                SUM(CASE WHEN jurnal_details.posisi = "debit" 
-                         THEN jurnal_details.nominal 
-                         ELSE -jurnal_details.nominal END) as saldo')
-            ->join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
-            ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
-            ->whereYear('transaksis.tanggal', $tahun)
-            ->whereMonth('transaksis.tanggal', '<=', $bulan)
-            ->where('kategori_transaksis.kode', 'like', '1%')
-            ->groupBy('kategori_transaksis.kode', 'kategori_transaksis.name')
-            ->get();
+        try {
+            // --- ASET ---
+            $akunAset = KategoriTransaksi::whereIn('kode', ['101', '103', '104', '106', '107'])->get();
+            $aset = [];
+            foreach ($akunAset as $kategori) {
+                $debit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'debit')
+                    ->sum('jurnal_details.nominal');
 
-        $totalAsetLancar = $asetList->sum('saldo');
+                $kredit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'kredit')
+                    ->sum('jurnal_details.nominal');
 
-        // ========== ASET TETAP ==========
-        $asetTetapList = AsetTetap::where('status', 1)
-            ->whereYear('tanggal_perolehan', '<=', $tahun)
-            ->get()
-            ->map(function ($aset) use ($bulan, $tahun) {
-                $umur = max(1, $aset->umur_ekonomis);
-                $penyusutanPerBulan = ($aset->nilai_perolehan - $aset->nilai_sisa) / $umur;
+                $aset[] = [
+                    'kode' => $kategori->kode,
+                    'nama' => $kategori->name,
+                    'saldo' => $debit - $kredit
+                ];
+            }
 
-                $bulanPerolehan = Carbon::parse($aset->tanggal_perolehan)->format('m');
-                $tahunPerolehan = Carbon::parse($aset->tanggal_perolehan)->format('Y');
+            // --- LIABILITAS ---
+            $akunLiabilitas = KategoriTransaksi::whereIn('kode', ['301', '302', '303', '304', '305'])->get();
+            $liabilitas = [];
+            foreach ($akunLiabilitas as $kategori) {
+                $debit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'debit')
+                    ->sum('jurnal_details.nominal');
 
-                $lamaPemakaian = (($tahun - $tahunPerolehan) * 12) + ($bulan - $bulanPerolehan);
-                if ($lamaPemakaian < 0) $lamaPemakaian = 0;
+                $kredit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'kredit')
+                    ->sum('jurnal_details.nominal');
 
-                $akumulasi = min($aset->nilai_perolehan - $aset->nilai_sisa, $lamaPemakaian * $penyusutanPerBulan);
+                $liabilitas[] = [
+                    'kode' => $kategori->kode,
+                    'nama' => $kategori->name,
+                    'saldo' => $kredit - $debit
+                ];
+            }
 
-                $aset->akumulasi_penyusutan = $akumulasi;
-                $aset->nilai_buku = $aset->nilai_perolehan - $akumulasi;
+            // --- MODAL ---
+            $modal = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                ->where('jurnal_details.kategori_transaksi_id', 403)
+                ->where('transaksis.status', 'active')
+                ->sum(DB::raw("CASE WHEN jurnal_details.posisi='kredit' THEN jurnal_details.nominal ELSE -jurnal_details.nominal END"));
 
-                return $aset;
-            });
+            $liabilitas[] = [
+                'kode' => '403',
+                'nama' => 'Modal',
+                'saldo' => $modal
+            ];
 
-        $totalAsetTetap = $asetTetapList->sum('nilai_buku');
-        $totalAset = $totalAsetLancar + $totalAsetTetap;
+            // --- ASET NETO ---
+            $asetNeto = [];
+            $tipeAsetNeto = [
+                ['id' => 6, 'nama' => 'Tidak Terikat'],
+                ['id' => 7, 'nama' => 'Terikat']
+            ];
 
-        // ========== LIABILITAS ==========
-        $liabilitasList = JurnalDetail::selectRaw('kategori_transaksis.kode, kategori_transaksis.name as nama, 
-                SUM(CASE WHEN jurnal_details.posisi = "kredit" 
-                         THEN jurnal_details.nominal 
-                         ELSE -jurnal_details.nominal END) as saldo')
-            ->join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
-            ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
-            ->whereYear('transaksis.tanggal', $tahun)
-            ->whereMonth('transaksis.tanggal', '<=', $bulan)
-            ->where('kategori_transaksis.kode', 'like', '2%')
-            ->groupBy('kategori_transaksis.kode', 'kategori_transaksis.name')
-            ->get();
+            foreach ($tipeAsetNeto as $tipe) {
+                $pendapatan = JurnalDetail::join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
+                    ->join('tipe_transaksis', 'kategori_transaksis.tipe_transaksi_id', '=', 'tipe_transaksis.id')
+                    ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('tipe_transaksis.id', $tipe['id'])
+                    ->where('jurnal_details.posisi', 'kredit')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->sum('jurnal_details.nominal');
 
-        $totalLiabilitas = $liabilitasList->sum('saldo');
+                $bebanId = $tipe['id'] + 2;
+                $beban = JurnalDetail::join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
+                    ->join('tipe_transaksis', 'kategori_transaksis.tipe_transaksi_id', '=', 'tipe_transaksis.id')
+                    ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('tipe_transaksis.id', $bebanId)
+                    ->where('jurnal_details.posisi', 'debit')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->sum('jurnal_details.nominal');
 
-        // ========== EKUITAS ==========
-        $ekuitasList = JurnalDetail::selectRaw('kategori_transaksis.kode, kategori_transaksis.name as nama, 
-                SUM(CASE WHEN jurnal_details.posisi = "kredit" 
-                         THEN jurnal_details.nominal 
-                         ELSE -jurnal_details.nominal END) as saldo')
-            ->join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
-            ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
-            ->whereYear('transaksis.tanggal', $tahun)
-            ->whereMonth('transaksis.tanggal', '<=', $bulan)
-            ->where('kategori_transaksis.kode', 'like', '3%')
-            ->groupBy('kategori_transaksis.kode', 'kategori_transaksis.name')
-            ->get();
+                $asetNeto[] = [
+                    'nama' => $tipe['nama'],
+                    'saldo' => $pendapatan - $beban
+                ];
+            }
 
-        $totalEkuitas = $ekuitasList->sum('saldo');
-        $totalPassiva = $totalLiabilitas + $totalEkuitas;
+            $totalAsetNeto = array_sum(array_column($asetNeto, 'saldo'));
 
-        // ========== Generate PDF ==========
-        $pdf = Pdf::loadView('neraca.pdf', compact(
-            'bulan',
-            'tahun',
-            'pageTitle',
-            'asetList',
-            'asetTetapList',
-            'liabilitasList',
-            'ekuitasList',
-            'totalAsetLancar',
-            'totalAsetTetap',
-            'totalAset',
-            'totalLiabilitas',
-            'totalEkuitas',
-            'totalPassiva'
-        ));
+            $pdf = Pdf::loadView('neraca.pdf', compact(
+                'start_date',
+                'end_date',
+                'aset',
+                'liabilitas',
+                'asetNeto',
+                'totalAsetNeto'
+            ));
 
-        return $pdf->download("Neraca_{$bulan}_{$tahun}.pdf");
+            return $pdf->download('neraca_' . $start_date . '_sampai_' . $end_date . '.pdf');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $start_date = $request->start_date ?? date('Y-m-01');
+        $end_date   = $request->end_date ?? date('Y-m-d');
+
+        try {
+            // --- ASET ---
+            $akunAset = KategoriTransaksi::whereIn('kode', ['101', '103', '104', '106', '107'])->get();
+            $aset = [];
+            foreach ($akunAset as $kategori) {
+                $debit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'debit')
+                    ->sum('jurnal_details.nominal');
+
+                $kredit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'kredit')
+                    ->sum('jurnal_details.nominal');
+
+                $aset[] = [
+                    'Kode' => $kategori->kode,
+                    'Nama' => $kategori->name,
+                    'Saldo' => $debit - $kredit
+                ];
+            }
+
+            // --- LIABILITAS & MODAL ---
+            $akunLiabilitas = KategoriTransaksi::whereIn('kode', ['301', '302', '303', '304', '305'])->get();
+            $liabilitas = [];
+            foreach ($akunLiabilitas as $kategori) {
+                $debit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'debit')
+                    ->sum('jurnal_details.nominal');
+
+                $kredit = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('jurnal_details.kategori_transaksi_id', $kategori->id)
+                    ->where('transaksis.status', 'active')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->where('jurnal_details.posisi', 'kredit')
+                    ->sum('jurnal_details.nominal');
+
+                $liabilitas[] = [
+                    'Kode' => $kategori->kode,
+                    'Nama' => $kategori->name,
+                    'Saldo' => $kredit - $debit
+                ];
+            }
+
+            // Modal
+            $modal = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                ->where('jurnal_details.kategori_transaksi_id', 403)
+                ->where('transaksis.status', 'active')
+                ->sum(DB::raw("CASE WHEN jurnal_details.posisi='kredit' THEN jurnal_details.nominal ELSE -jurnal_details.nominal END"));
+
+            $liabilitas[] = [
+                'Kode' => '403',
+                'Nama' => 'Modal',
+                'Saldo' => $modal
+            ];
+
+            // --- ASET NETO ---
+            $asetNeto = [];
+            $tipeAsetNeto = [
+                ['id' => 6, 'nama' => 'Tidak Terikat'],
+                ['id' => 7, 'nama' => 'Terikat']
+            ];
+
+            foreach ($tipeAsetNeto as $tipe) {
+                $pendapatan = JurnalDetail::join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
+                    ->join('tipe_transaksis', 'kategori_transaksis.tipe_transaksi_id', '=', 'tipe_transaksis.id')
+                    ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('tipe_transaksis.id', $tipe['id'])
+                    ->where('jurnal_details.posisi', 'kredit')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->sum('jurnal_details.nominal');
+
+                $bebanId = $tipe['id'] + 2;
+                $beban = JurnalDetail::join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
+                    ->join('tipe_transaksis', 'kategori_transaksis.tipe_transaksi_id', '=', 'tipe_transaksis.id')
+                    ->join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
+                    ->where('tipe_transaksis.id', $bebanId)
+                    ->where('jurnal_details.posisi', 'debit')
+                    ->whereBetween('transaksis.tanggal', [$start_date, $end_date])
+                    ->sum('jurnal_details.nominal');
+
+                $asetNeto[] = [
+                    'Nama' => $tipe['nama'],
+                    'Saldo' => $pendapatan - $beban
+                ];
+            }
+
+            $totalAsetNeto = array_sum(array_column($asetNeto, 'Saldo'));
+
+            // --- Buat CSV ---
+            $filename = 'neraca_' . $start_date . '_sampai_' . $end_date . '.csv';
+            $handle = fopen('php://memory', 'w');
+
+            // Header CSV
+            fputcsv($handle, ['NERACA (ASET NETO)']);
+            fputcsv($handle, ['Periode', date('d-m-Y', strtotime($start_date)) . ' s/d ' . date('d-m-Y', strtotime($end_date))]);
+            fputcsv($handle, []); // kosong
+
+            // Aset
+            fputcsv($handle, ['ASET']);
+            fputcsv($handle, ['Kode', 'Nama', 'Saldo']);
+            foreach ($aset as $row) {
+                fputcsv($handle, $row);
+            }
+            fputcsv($handle, []); // kosong
+
+            // Liabilitas & Modal
+            fputcsv($handle, ['LIABILITAS & MODAL']);
+            fputcsv($handle, ['Kode', 'Nama', 'Saldo']);
+            foreach ($liabilitas as $row) {
+                fputcsv($handle, $row);
+            }
+            fputcsv($handle, []); // kosong
+
+            // Aset Neto
+            fputcsv($handle, ['ASET NETO']);
+            fputcsv($handle, ['Nama', 'Saldo']);
+            foreach ($asetNeto as $row) {
+                fputcsv($handle, $row);
+            }
+            fputcsv($handle, ['Total Aset Neto', $totalAsetNeto]);
+
+            rewind($handle);
+
+            return response()->streamDownload(function () use ($handle) {
+                fpassthru($handle);
+            }, $filename);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 }
