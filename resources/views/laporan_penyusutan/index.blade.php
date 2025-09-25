@@ -19,9 +19,14 @@
                             <h3 class="m-0">Penyusutan Aset</h3>
                         </div>
                         <div class="ml-auto">
-                            <button class="btn btn-danger" id="btn_pdf">
-                                <i class="fa fa-file-pdf"></i> Export PDF
-                            </button>
+                            <div class="ml-auto mr-3 mb-3 d-flex">
+                                <button class="btn btn-danger" id="btn_pdf" style="margin-right: 5px">
+                                    <i class="fa fa-file-pdf"></i> Export PDF
+                                </button>
+                                <button class="btn btn-info" id="btn_csv">
+                                    <i class="fa fa-table"></i> Export CSV
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -69,6 +74,12 @@
             e.preventDefault();
 
             window.location.href = `/laporan/penyusutan-aset/pdf`;
+        });
+
+        $('#btn_csv').on('click', function(e) {
+            e.preventDefault();
+
+            window.location.href = `/laporan/penyusutan-aset/csv`;
         });
     </script>
 @endsection

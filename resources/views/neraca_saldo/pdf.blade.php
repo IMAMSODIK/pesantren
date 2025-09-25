@@ -39,7 +39,7 @@
 
 <body>
     <h3 style="text-align: center;">Laporan Neraca Saldo</h3>
-    <p>Bulan: {{ $bulan }} - Tahun: {{ $tahun }}</p>
+    <p>Periode: {{ \Carbon\Carbon::parse($startDate)->translatedFormat('d F Y') }} s/d {{ \Carbon\Carbon::parse($endDate)->translatedFormat('d F Y') }}</p>
 
     <table>
         <thead>

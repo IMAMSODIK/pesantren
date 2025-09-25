@@ -12,7 +12,8 @@
     </style>
 </head>
 <body>
-    <h2>Laporan Utang & Piutang<br>Bulan {{ $bulan }} Tahun {{ $tahun }}</h2>
+    <h2>Laporan Utang & Piutang<br></h2>
+    <p>Periode: {{ \Carbon\Carbon::parse($startDate)->translatedFormat('d F Y') }} s/d {{ \Carbon\Carbon::parse($endDate)->translatedFormat('d F Y') }}</p>
 
     <h4>Piutang</h4>
     <table>

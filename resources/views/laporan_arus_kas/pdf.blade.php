@@ -13,7 +13,7 @@
 </head>
 <body>
     <h2 style="text-align: center;">{{ $pageTitle }}</h2>
-    <p style="text-align: center;">Periode: {{ $bulan }}/{{ $tahun }}</p>
+    <p>Periode: {{ \Carbon\Carbon::parse($startDate)->translatedFormat('d F Y') }} s/d {{ \Carbon\Carbon::parse($endDate)->translatedFormat('d F Y') }}</p>
 
     <table>
         <thead>

@@ -122,14 +122,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/jurnal-umum', [LaporanController::class, 'jurnalUmum'])->name('jurnal_umum');
     Route::get('/laporan/jurnal-umum/filter', [LaporanController::class, 'filterJurnalUmum']);
     Route::get('/laporan/jurnal-umum/pdf', [LaporanController::class, 'exportPdf']);
+    Route::get('/laporan/jurnal-umum/csv', [LaporanController::class, 'exportCsv']);
+
 
     Route::get('/laporan/buku-besar', [BukuBesarController::class, 'bukuBesar'])->name('buku_besar');
     Route::get('/laporan/buku-besar/filter', [BukuBesarController::class, 'filterBukuBesar']);
     Route::get('/laporan/buku-besar/pdf', [BukuBesarController::class, 'bukuBesarPdf']);
+    Route::get('/laporan/buku-besar/csv', [BukuBesarController::class, 'bukuBesarCsv']);
 
     Route::get('/laporan/neraca-saldo', [NeracaSaldoController::class, 'neracaSaldo'])->name('neraca_saldo');
     Route::get('/laporan/neraca-saldo/filter', [NeracaSaldoController::class, 'filterNeracaSaldo']);
     Route::get('/laporan/neraca-saldo/pdf', [NeracaSaldoController::class, 'exportNeracaSaldoPDF']);
+    Route::get('/laporan/neraca-saldo/csv', [NeracaSaldoController::class, 'exportNeracaSaldoCSV']);
 
     Route::get('/laporan/laporan-perubahan-aset-neto', [LabaRugiController::class, 'labaRugi'])->name('laba_rugi');
     Route::get('/laporan/laporan-perubahan-aset-neto/filter', [LabaRugiController::class, 'filterLabaRugi']);
@@ -142,13 +146,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/laporan/penyusutan-aset', [LaporanPenyusutanController::class, 'index'])->name('penyusutan_aset');
     Route::get('/laporan/penyusutan-aset/pdf', [LaporanPenyusutanController::class, 'pdf'])->name('penyusutan.pdf');
+    Route::get('/laporan/penyusutan-aset/csv', [LaporanPenyusutanController::class, 'csv'])->name('penyusutan.csv');
 
     Route::get('/laporan/arus-kas', [ArusKasController::class, 'index'])->name('arus_kas');
     Route::get('/laporan/arus-kas/pdf', [ArusKasController::class, 'pdf']);
+    Route::get('/laporan/arus-kas/csv', [ArusKasController::class, 'csv']);
 
     Route::get('/laporan/piutang-utang', [UtangPiutangController::class, 'index'])->name('piutang_utang');
     Route::get('/laporan/piutang-utang/filter', [UtangPiutangController::class, 'filter']);
     Route::get('/laporan/piutang-utang/pdf', [UtangPiutangController::class, 'exportPdf']);
+    Route::get('/laporan/piutang-utang/csv', [UtangPiutangController::class, 'exportCsv']);
 
     Route::post('/logout', function () {
         Auth::logout();

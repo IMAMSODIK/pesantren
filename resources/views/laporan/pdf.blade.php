@@ -31,7 +31,7 @@
 
 <body>
     <h3>Laporan Jurnal Umum</h3>
-    <p>Bulan: {{ $bulan }} - Tahun: {{ $tahun }}</p>
+    <p>Periode: {{ \Carbon\Carbon::parse($startDate)->translatedFormat('d F Y') }} s/d {{ \Carbon\Carbon::parse($endDate)->translatedFormat('d F Y') }}</p>
 
     <table class="table table-bordered table-sm">
         <thead>

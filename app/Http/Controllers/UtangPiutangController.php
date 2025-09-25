@@ -11,15 +11,15 @@ class UtangPiutangController extends Controller
 {
     public function index(Request $request)
     {
-        $bulan = $request->bulan ?? date('m');
-        $tahun = $request->tahun ?? date('Y');
+        $startDate = $request->start_date ?? date('Y-m-01');
+        $endDate   = $request->end_date ?? date('Y-m-t');
         $pageTitle = "Laporan Utang & Piutang";
 
-        [$piutang, $utang, $totalPiutang, $totalUtang] = $this->getData($bulan, $tahun);
+        [$piutang, $utang, $totalPiutang, $totalUtang] = $this->getData($startDate, $endDate);
 
         return view('utang_piutang.index', compact(
-            'bulan',
-            'tahun',
+            'startDate',
+            'endDate',
             'pageTitle',
             'piutang',
             'utang',
@@ -30,10 +30,10 @@ class UtangPiutangController extends Controller
 
     public function filter(Request $request)
     {
-        $bulan = $request->bulan;
-        $tahun = $request->tahun;
+        $startDate = $request->start_date;
+        $endDate   = $request->end_date;
 
-        [$piutang, $utang, $totalPiutang, $totalUtang] = $this->getData($bulan, $tahun);
+        [$piutang, $utang, $totalPiutang, $totalUtang] = $this->getData($startDate, $endDate);
 
         return view('utang_piutang.partials.table', compact(
             'piutang',
@@ -45,51 +45,91 @@ class UtangPiutangController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $bulan = $request->bulan ?? date('m');
-        $tahun = $request->tahun ?? date('Y');
+        $startDate = $request->start_date ?? date('Y-m-01');
+        $endDate   = $request->end_date ?? date('Y-m-t');
 
-        [$piutang, $utang, $totalPiutang, $totalUtang] = $this->getData($bulan, $tahun);
+        [$piutang, $utang, $totalPiutang, $totalUtang] = $this->getData($startDate, $endDate);
 
         $pdf = Pdf::loadView('utang_piutang.pdf', compact(
-            'bulan',
-            'tahun',
+            'startDate',
+            'endDate',
             'piutang',
             'utang',
             'totalPiutang',
             'totalUtang'
         ));
 
-        $fileName = "laporan-utang-piutang-{$bulan}-{$tahun}.pdf";
-
+        $fileName = "laporan-utang-piutang-{$startDate}-sampai-{$endDate}.pdf";
         return $pdf->download($fileName);
     }
 
-
-    private function getData($bulan, $tahun)
+    public function exportCsv(Request $request)
     {
-        // ==== PIUTANG ====
+        $startDate = $request->start_date ?? date('Y-m-01');
+        $endDate   = $request->end_date ?? date('Y-m-t');
+        $fileName  = "laporan-utang-piutang-{$startDate}-sampai-{$endDate}.csv";
+
+        [$piutang, $utang, $totalPiutang, $totalUtang] = $this->getData($startDate, $endDate);
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename={$fileName}",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function () use ($piutang, $utang, $totalPiutang, $totalUtang) {
+            $file = fopen('php://output', 'w');
+
+            // === Bagian PIUTANG ===
+            fputcsv($file, ["LAPORAN PIUTANG"]);
+            fputcsv($file, ["Nama Akun", "Saldo (Rp)"]);
+            foreach ($piutang as $p) {
+                fputcsv($file, [$p->nama_akun, $p->saldo]);
+            }
+            fputcsv($file, ["Total Piutang", $totalPiutang]);
+
+            fputcsv($file, []); // baris kosong sebagai pemisah
+
+            // === Bagian UTANG ===
+            fputcsv($file, ["LAPORAN UTANG"]);
+            fputcsv($file, ["Nama Akun", "Saldo (Rp)"]);
+            foreach ($utang as $u) {
+                fputcsv($file, [$u->nama_akun, $u->saldo]);
+            }
+            fputcsv($file, ["Total Utang", $totalUtang]);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+
+    private function getData($startDate, $endDate)
+    {
+        // PIUTANG
         $piutang = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
             ->join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
-            ->whereYear('transaksis.tanggal', $tahun)
-            ->whereMonth('transaksis.tanggal', $bulan)
+            ->whereBetween('transaksis.tanggal', [$startDate, $endDate])
             ->whereIn('kategori_transaksis.kode', ['103', '104', '106', '107'])
-            ->selectRaw('kategori_transaksis.name as nama_akun, 
-                         SUM(CASE WHEN jurnal_details.posisi = "debit" 
-                                  THEN jurnal_details.nominal 
-                                  ELSE -jurnal_details.nominal END) as saldo')
+            ->selectRaw('kategori_transaksis.name as nama_akun,
+                     SUM(CASE WHEN jurnal_details.posisi = "debit"
+                              THEN jurnal_details.nominal 
+                              ELSE -jurnal_details.nominal END) as saldo')
             ->groupBy('kategori_transaksis.name')
             ->get();
 
-        // ==== UTANG ====
+        // UTANG
         $utang = JurnalDetail::join('transaksis', 'jurnal_details.transaksi_id', '=', 'transaksis.id')
             ->join('kategori_transaksis', 'jurnal_details.kategori_transaksi_id', '=', 'kategori_transaksis.id')
-            ->whereYear('transaksis.tanggal', $tahun)
-            ->whereMonth('transaksis.tanggal', $bulan)
+            ->whereBetween('transaksis.tanggal', [$startDate, $endDate])
             ->whereIn('kategori_transaksis.kode', ['301', '302', '303', '304', '305'])
-            ->selectRaw('kategori_transaksis.name as nama_akun, 
-                         SUM(CASE WHEN jurnal_details.posisi = "kredit" 
-                                  THEN jurnal_details.nominal 
-                                  ELSE -jurnal_details.nominal END) as saldo')
+            ->selectRaw('kategori_transaksis.name as nama_akun,
+                     SUM(CASE WHEN jurnal_details.posisi = "kredit"
+                              THEN jurnal_details.nominal 
+                              ELSE -jurnal_details.nominal END) as saldo')
             ->groupBy('kategori_transaksis.name')
             ->get();
 
